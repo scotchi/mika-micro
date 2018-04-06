@@ -13,6 +13,10 @@ void MikaMicro::InitParameters()
 	GetParam(kOsc2Split)->InitDouble("Oscillator 2 split", 0.0, -.5, .5, .01, "semitones");
 	GetParam(kOscMix)->InitDouble("Oscillator mix", 0.0, 0.0, 1.0, .01);
 
+	GetParam(kFmMode)->InitEnum("FM mode", 0, 3);
+	GetParam(kFmCoarse)->InitInt("FM coarse", 0, 0, 48, "semitones");
+	GetParam(kFmFine)->InitDouble("FM fine", 0.0, -1.0, 1.0, .01, "semitones");
+
 	GetParam(kVolEnvA)->InitDouble("Volume envelope attack", 1000.0, 0.1, 1000.0, .01);
 	GetParam(kVolEnvD)->InitDouble("Volume envelope decay", 1.0, 0.1, 1000.0, .01);
 	GetParam(kVolEnvS)->InitDouble("Volume envelope sustain", 0.5, 0.0, 1.0, .01);
@@ -46,9 +50,9 @@ void MikaMicro::InitGraphics()
 	pGraphics->AttachControl(new IFaderControl(this, 90.5 * 4, 16 * 4, 20 * 4, kOscMix, &slider));
 
 	// fm
-	//pGraphics->AttachControl(new ISwitchControl(this, 22 * 4, 42 * 4, kFmMode, &fmModeSwitch));
-	//pGraphics->AttachControl(new IKnobMultiControl(this, 38 * 4, 42 * 4, kFmCoarse, &knobLeft));
-	//pGraphics->AttachControl(new IKnobMultiControl(this, 54 * 4, 42 * 4, kFmFine, &knobMiddle));
+	pGraphics->AttachControl(new ISwitchControl(this, 22 * 4, 42 * 4, kFmMode, &fmModeSwitch));
+	pGraphics->AttachControl(new IKnobMultiControl(this, 38 * 4, 42 * 4, kFmCoarse, &knobLeft));
+	pGraphics->AttachControl(new IKnobMultiControl(this, 54 * 4, 42 * 4, kFmFine, &knobMiddle));
 
 	// filter
 	//pGraphics->AttachControl(new ISwitchControl(this, 22 * 4, 62 * 4, kFilterEnabled, &toggleSwitch));

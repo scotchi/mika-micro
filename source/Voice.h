@@ -34,6 +34,7 @@ public:
 	{
 		if (GetVolume() == 0.0)
 		{
+			oscFm.Reset();
 			osc1a.Reset();
 			osc1b.Reset(p[kOsc1Split] < 0.0 ? .33 : 0.0);
 			osc2a.Reset();
@@ -50,8 +51,6 @@ public:
 	double Get(double dt);
 
 private:
-	double GetOsc1(double dt);
-	double GetOsc2(double dt);
 	double GetOscillators(double dt);
 
 	double osc1Pitch = 1.0;
@@ -65,6 +64,7 @@ private:
 	int note = 69;
 	double baseFrequency = 440.0;
 	Envelope volEnv;
+	Oscillator oscFm;
 	Oscillator osc1a;
 	Oscillator osc1b;
 	Oscillator osc2a;
