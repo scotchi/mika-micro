@@ -23,6 +23,7 @@ private:
 	void InitGraphics();
 	void FlushMidi(int sample);
 
+	IGraphics* pGraphics;
 	std::array<double, kNumParameters> parameters;
 	IMidiQueue midiQueue;
 	double dt = 0.0;
