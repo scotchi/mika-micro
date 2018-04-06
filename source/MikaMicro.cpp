@@ -139,13 +139,18 @@ void MikaMicro::InitGraphics()
 	pGraphics->AttachControl(new IKnobMultiControl(this, 22 * 4, 90 * 4, kGlideSpeed, &knobLeft));
 	pGraphics->AttachControl(new IKnobMultiControl(this, 38 * 4, 90 * 4, kMasterVolume, &knobLeft));
 
-	//pGraphics->AttachControl(new PresetMenu(this, IRECT(0, 0, 100, 25)));
+	pGraphics->AttachControl(new PresetMenu(this, IRECT(0, 0, 100, 25)));
 
 	AttachGraphics(pGraphics);
 }
 
+void MikaMicro::InitVoices()
+{
+	for (int i = 0; i < 8; i++) voices.push_back(Voice(parameters));
+}
+
 MikaMicro::MikaMicro(IPlugInstanceInfo instanceInfo)
-	: IPLUG_CTOR(kNumParameters, 1, instanceInfo),
+	: IPLUG_CTOR(kNumParameters, 128, instanceInfo),
 	lfo(kSine),
 	gen(rd()),
 	dist(-1.0, 1.0)
@@ -154,8 +159,8 @@ MikaMicro::MikaMicro(IPlugInstanceInfo instanceInfo)
 
 	InitParameters();
 	InitGraphics();
-	for (int i = 0; i < 8; i++) voices.push_back(Voice(parameters));
-	MakeDefaultPreset("-", 1);
+	InitPresets();
+	InitVoices();
 }
 
 void MikaMicro::FlushMidi(int sample)

@@ -6,6 +6,7 @@
 #include "IMidiQueue.h"
 #include "Oscillator.h"
 #include "Parameters.h"
+#include "PresetMenu.h"
 #include <random>
 #include <vector>
 #include "Voice.h"
@@ -23,7 +24,9 @@ public:
 
 private:
 	void InitParameters();
+	void InitPresets();
 	void InitGraphics();
+	void InitVoices();
 	void FlushMidi(int sample);
 
 	double GetDriftValue();

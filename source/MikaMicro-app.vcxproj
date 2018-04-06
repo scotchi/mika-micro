@@ -283,6 +283,7 @@
     <ClInclude Include="MikaMicro.h" />
     <ClInclude Include="Oscillator.h" />
     <ClInclude Include="Parameters.h" />
+    <ClInclude Include="PresetMenu.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Util.h" />
     <ClInclude Include="Voice.h" />
@@ -300,6 +301,7 @@
     <ClCompile Include="Filter.cpp" />
     <ClCompile Include="MikaMicro.cpp" />
     <ClCompile Include="Oscillator.cpp" />
+    <ClCompile Include="Presets.cpp" />
     <ClCompile Include="Voice.cpp" />
   </ItemGroup>
   <ItemGroup>
