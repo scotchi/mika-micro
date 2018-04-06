@@ -48,13 +48,19 @@ public:
 		note = n;
 		baseFrequency = pitchToFrequency(n);
 	};
-	void SetPitchBendFactor(double f) { pitchBendFactor = f; }
 	int GetNote() { return note; }
+	void SetVelocity(double v)
+	{
+		volEnv.SetVelocity(v);
+		modEnv.SetVelocity(v);
+		lfoEnv.SetVelocity(v);
+	}
+	void SetPitchBendFactor(double f) { pitchBendFactor = f; }
 	
 	void Start();
 	void Release() { volEnv.stage = kRelease; }
 	bool IsReleased() { return volEnv.stage == kRelease; }
-	double GetVolume() { return volEnv.Get(); }
+	double GetVolume() { return volEnv.Get(p[kVolEnvV]); }
 	double Get(double dt, double lfoValue);
 
 private:

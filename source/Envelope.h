@@ -12,13 +12,15 @@ enum EEnvelopeStage
 class Envelope
 {
 public:
+	void SetVelocity(double v) { velocity = v; }
 	void Reset() { value = 0.0; }
 	void Update(double dt, double a, double d, double s, double r);
-	double Get() { return value; }
+	double Get(double velocitySensitivity) { return value * (1.0 + velocitySensitivity * (velocity - 1.0)); }
 
 	EEnvelopeStage stage = kRelease;
 
 private:
+	double velocity = 0.0;
 	double value = 0.0;
 };
 
