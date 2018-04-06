@@ -58,6 +58,7 @@ public:
 
 private:
 	double GetOscillators(double dt);
+	double GetFilterCutoff();
 
 	double osc1Pitch = 1.0;
 	double osc1SplitFactorA = 1.0;
@@ -72,6 +73,7 @@ private:
 	int note = 69;
 	double baseFrequency = 440.0;
 	Envelope volEnv;
+	Envelope modEnv;
 	Oscillator oscFm;
 	Oscillator osc1a;
 	Oscillator osc1b;

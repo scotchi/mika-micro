@@ -12,9 +12,11 @@ void Voice::Start()
 		osc1bMix = p[kOsc1Split] != 0.0 ? 1.0 : 0.0;
 		osc2bMix = p[kOsc2Split] != 0.0 ? 1.0 : 0.0;
 		volEnv.Reset();
+		modEnv.Reset();
 		filter.Reset();
 	}
 	volEnv.stage = kAttack;
+	modEnv.stage = kAttack;
 }
 
 double Voice::GetOscillators(double dt)
@@ -34,7 +36,10 @@ double Voice::GetOscillators(double dt)
 	if (p[kFmMode] != 0)
 	{
 		oscFm.Update(dt, osc1Frequency);
-		fmFactor = pitchFactor(oscFm.Get() * (p[kFmCoarse] + p[kFmFine]));
+		auto fmAmount = p[kFmCoarse] + p[kFmFine];
+		if (p[kVolEnvFm] != 0.0) fmAmount += volEnv.Get() * p[kVolEnvFm];
+		if (p[kModEnvFm] != 0.0) fmAmount += modEnv.Get() * p[kModEnvFm];
+		fmFactor = pitchFactor(oscFm.Get() * fmAmount);
 		if (p[kFmMode] == 1) osc1Frequency *= fmFactor;
 		if (p[kFmMode] == 2) osc2Frequency *= fmFactor;
 	}
@@ -70,11 +75,21 @@ double Voice::GetOscillators(double dt)
 	return out / (1.0 + abs(.5 - p[kOscMix])) * 1.5;
 }
 
+double Voice::GetFilterCutoff()
+{
+	auto cutoff = p[kFilterCutoff];
+	if (p[kVolEnvCutoff] != 0.0) cutoff += volEnv.Get() * p[kVolEnvCutoff];
+	if (p[kModEnvCutoff] != 0.0) cutoff += modEnv.Get() * p[kModEnvCutoff];
+	return cutoff;
+}
+
 double Voice::Get(double dt)
 {
 	volEnv.Update(dt, p[kVolEnvA], p[kVolEnvD], p[kVolEnvS], p[kVolEnvR]);
 	if (GetVolume() == 0.0 && filter.IsSilent()) return 0.0;
+	modEnv.Update(dt, p[kModEnvA], p[kModEnvD], p[kModEnvS], p[kModEnvR]);
+
 	auto out = GetOscillators(dt) * volEnv.Get();
-	out = filter.Process(dt, out, p[kFilterCutoff], p[kFilterResonance]);
+	out = filter.Process(dt, out, GetFilterCutoff(), p[kFilterResonance]);
 	return out;
 }
