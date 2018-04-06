@@ -13,6 +13,7 @@ void Voice::Start()
 		osc2bMix = p[kOsc2Split] != 0.0 ? 1.0 : 0.0;
 		volEnv.Reset();
 		filter.Reset();
+		filterMix = p[kFilterEnabled] ? 1.0 : 0.0;
 	}
 	volEnv.stage = kAttack;
 }
@@ -24,8 +25,10 @@ double Voice::GetOscillators(double dt)
 	auto osc2Frequency = baseFrequency * osc2Pitch;
 
 	// oscillator split smoothing
-	osc1bMix = lerp(osc1bMix, (p[kOsc1Split] != 0.0 ? 1.0 : 0.0), 100.0 * dt);
-	osc2bMix = lerp(osc2bMix, (p[kOsc2Split] != 0.0 ? 1.0 : 0.0), 100.0 * dt);
+	osc1bMix = lerp(osc1bMix, (p[kOsc1Split] != 0.0 ? 1.1 : -.1), 100.0 * dt);
+	osc1bMix = osc1bMix > 1.0 ? 1.0 : osc1bMix < 0.0 ? 0.0 : osc1bMix;
+	osc2bMix = lerp(osc2bMix, (p[kOsc2Split] != 0.0 ? 1.1 : -.1), 100.0 * dt);
+	osc2bMix = osc2bMix > 1.0 ? 1.0 : osc2bMix < 0.0 ? 0.0 : osc2bMix;
 
 	// fm
 	auto fmFactor = 1.0;
@@ -72,7 +75,15 @@ double Voice::Get(double dt)
 {
 	volEnv.Update(dt, p[kVolEnvA], p[kVolEnvD], p[kVolEnvS], p[kVolEnvR]);
 	if (GetVolume() == 0.0 && filter.IsSilent()) return 0.0;
-	auto out = GetOscillators(dt) * volEnv.Get();
-	if (p[kFilterEnabled]) out = filter.Process(dt, out, p[kFilterCutoff], p[kFilterResonance]);
+
+	// oscillators
+	auto oscOut = GetOscillators(dt) * volEnv.Get();
+
+	// filter
+	filterMix = lerp(filterMix, p[kFilterEnabled] ? 1.1 : -.1, 100.0 * dt);
+	filterMix = filterMix > 1.0 ? 1.0 : filterMix < 0.0 ? 0.0 : filterMix;
+	auto filterOut = filterMix > 0.0 ? filter.Process(dt, oscOut, p[kFilterCutoff], p[kFilterResonance]) : 0.0;
+	auto out = oscOut * (1.0 - filterMix) + filterOut * filterMix;
+
 	return out;
 }
