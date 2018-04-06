@@ -26,8 +26,9 @@ void MikaMicro::ProcessDoubleReplacing(double** inputs, double** outputs, int nF
 {
 	for (int s = 0; s < nFrames; s++)
 	{
+		env.Update(dt, envParams);
 		osc.Update(dt, 110.0);
-		auto out = osc.Get(kSaw) * .25;
+		auto out = osc.Get(kSaw) * .25 * env.Get();
 		outputs[0][s] = outputs[1][s] = out;
 	}
 }
