@@ -61,7 +61,7 @@ void MikaMicro::InitParameters()
 	// master
 	GetParam(kVoiceMode)->InitEnum("Voice mode", kLegato, kNumVoiceModes);
 	GetParam(kGlideSpeed)->InitDouble("Glide speed", 1.0, 1.0, 1000.0, .01, "", "", .1);
-	//GetParam(kMasterVolume)->InitDouble("Master volume", 0.25, 0.0, 0.5, .01);
+	GetParam(kMasterVolume)->InitDouble("Master volume", 0.25, 0.0, 0.5, .01);
 }
 
 void MikaMicro::InitGraphics()
@@ -137,7 +137,7 @@ void MikaMicro::InitGraphics()
 	// master
 	pGraphics->AttachControl(new ISwitchControl(this, 6 * 4, 90 * 4, kVoiceMode, &fmModeSwitch));
 	pGraphics->AttachControl(new IKnobMultiControl(this, 22 * 4, 90 * 4, kGlideSpeed, &knobLeft));
-	//pGraphics->AttachControl(new IKnobMultiControl(this, 38 * 4, 90 * 4, kMasterVolume, &knobLeft));
+	pGraphics->AttachControl(new IKnobMultiControl(this, 38 * 4, 90 * 4, kMasterVolume, &knobLeft));
 
 	//pGraphics->AttachControl(new PresetMenu(this, IRECT(0, 0, 100, 25)));
 
@@ -236,8 +236,8 @@ void MikaMicro::ProcessDoubleReplacing(double** inputs, double** outputs, int nF
 		lfo.Update(dt, parameters[kLfoFrequency]);
 		auto lfoValue = lfo.Get();
 		auto out = 0.0;
-		for (auto &voice : voices) out += voice.Get(dt, lfoValue) * .25;
-		outputs[0][s] = outputs[1][s] = out;
+		for (auto &voice : voices) out += voice.Get(dt, lfoValue);
+		outputs[0][s] = outputs[1][s] = out * parameters[kMasterVolume];
 	}
 }
 
