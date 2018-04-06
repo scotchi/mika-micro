@@ -6,7 +6,11 @@
 enum EWaveforms
 {
 	kSine,
+	kTriangle,
 	kSaw,
+	kSquare,
+	kPulse,
+	kNoise,
 	kNumWaveforms
 };
 
@@ -21,7 +25,12 @@ public:
 private:
 	double Blep(double phase);
 
+	double GeneratePulse(double width);
+
 	double phase = 0.0;
 	double phaseIncrement = 0.0;
+	double triCurrent = 0.0;
+	double triLast = 0.0;
+	double noiseValue = 19.1919191919191919191919191919191919191919;
 };
 

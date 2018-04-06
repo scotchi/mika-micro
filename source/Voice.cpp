@@ -35,11 +35,11 @@ double Voice::GetOscillators(double dt)
 	if (p[kOscMix] < 1.0)
 	{
 		osc1a.Update(dt, osc1Frequency * osc1SplitFactorA);
-		osc1Out += osc1a.Get(kSaw);
+		osc1Out += osc1a.Get((EWaveforms)(int)p[kOsc1Wave]);
 		if (p[kOsc1Split] != 0.0)
 		{
 			osc1b.Update(dt, osc1Frequency * osc1SplitFactorB);
-			osc1Out += osc1b.Get(kSaw);
+			osc1Out += osc1b.Get((EWaveforms)(int)p[kOsc1Wave]);
 		}
 	}
 
@@ -48,11 +48,11 @@ double Voice::GetOscillators(double dt)
 	if (p[kOscMix] > 0.0)
 	{
 		osc2a.Update(dt, osc2Frequency * osc2SplitFactorA);
-		osc2Out += osc2a.Get(kSaw);
+		osc2Out += osc2a.Get((EWaveforms)(int)p[kOsc2Wave]);
 		if (p[kOsc2Split] != 0.0)
 		{
 			osc2b.Update(dt, osc2Frequency * osc2SplitFactorB);
-			osc2Out += osc2b.Get(kSaw);
+			osc2Out += osc2b.Get((EWaveforms)(int)p[kOsc2Wave]);
 		}
 	}
 
