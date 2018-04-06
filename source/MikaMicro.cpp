@@ -173,6 +173,8 @@ void MikaMicro::FlushMidi(int sample)
 			auto f = pitchFactor(message->PitchWheel() * 2.0);
 			for (auto &voice : voices) voice.SetPitchBendFactor(f);
 		}
+		else if (message->StatusMsg() == IMidiMsg::kAllNotesOff)
+			for (auto &voice : voices) voice.Release();
 
 		midiQueue.Remove();
 	}
