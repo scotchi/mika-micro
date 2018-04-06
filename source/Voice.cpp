@@ -13,17 +13,21 @@ void Voice::Start()
 		osc2bMix = p[kOsc2Split] != 0.0 ? 1.0 : 0.0;
 		volEnv.Reset();
 		modEnv.Reset();
+		lfoEnv.Reset();
 		filter.Reset();
 	}
 	volEnv.stage = kAttack;
 	modEnv.stage = kAttack;
+	lfoEnv.stage = kAttack;
 }
 
-double Voice::GetOscillators(double dt)
+double Voice::GetOscillators(double dt, double lfoValue)
 {
 	// oscillator frequencies
 	auto osc1Frequency = baseFrequency * osc1Pitch;
+	if (p[kLfoAmount] < 0.0) osc1Frequency *= 1 + abs(p[kLfoAmount]) * lfoValue;
 	auto osc2Frequency = baseFrequency * osc2Pitch;
+	if (p[kLfoAmount] != 0.0) osc2Frequency *= 1 + abs(p[kLfoAmount]) * lfoValue;
 
 	// oscillator split smoothing
 	osc1bMix = lerp(osc1bMix, (p[kOsc1Split] != 0.0 ? 1.1 : -.1), 100.0 * dt);
@@ -39,6 +43,7 @@ double Voice::GetOscillators(double dt)
 		auto fmAmount = p[kFmCoarse] + p[kFmFine];
 		if (p[kVolEnvFm] != 0.0) fmAmount += volEnv.Get() * p[kVolEnvFm];
 		if (p[kModEnvFm] != 0.0) fmAmount += modEnv.Get() * p[kModEnvFm];
+		if (p[kLfoFm] != 0.0) fmAmount += lfoValue * p[kLfoFm];
 		fmFactor = pitchFactor(oscFm.Get() * fmAmount);
 		if (p[kFmMode] == 1) osc1Frequency *= fmFactor;
 		if (p[kFmMode] == 2) osc2Frequency *= fmFactor;
@@ -75,21 +80,31 @@ double Voice::GetOscillators(double dt)
 	return out / (1.0 + abs(.5 - p[kOscMix])) * 1.5;
 }
 
-double Voice::GetFilterCutoff()
+double Voice::GetFilterCutoff(double lfoValue)
 {
 	auto cutoff = p[kFilterCutoff];
 	if (p[kVolEnvCutoff] != 0.0) cutoff += volEnv.Get() * p[kVolEnvCutoff];
 	if (p[kModEnvCutoff] != 0.0) cutoff += modEnv.Get() * p[kModEnvCutoff];
+	if (p[kLfoCutoff] != 0.0)
+	{
+		auto lfoCutoff = abs(p[kLfoCutoff]);
+		lfoCutoff *= .000125;
+		lfoCutoff *= lfoCutoff;
+		lfoCutoff *= 8000.0;
+		if (p[kLfoCutoff] < 0.0) lfoCutoff *= -1;
+		cutoff += lfoCutoff * lfoValue;
+	}
 	return cutoff;
 }
 
-double Voice::Get(double dt)
+double Voice::Get(double dt, double lfoValue)
 {
 	volEnv.Update(dt, p[kVolEnvA], p[kVolEnvD], p[kVolEnvS], p[kVolEnvR]);
 	if (GetVolume() == 0.0 && filter.IsSilent()) return 0.0;
 	modEnv.Update(dt, p[kModEnvA], p[kModEnvD], p[kModEnvS], p[kModEnvR]);
-
-	auto out = GetOscillators(dt) * volEnv.Get();
-	out = filter.Process(dt, out, GetFilterCutoff(), p[kFilterResonance]);
+	lfoEnv.Update(dt, p[kLfoDelay], 0.5, 1.0, 0.5);
+	lfoValue *= lfoEnv.Get();
+	auto out = GetOscillators(dt, lfoValue) * volEnv.Get();
+	out = filter.Process(dt, out, GetFilterCutoff(lfoValue), p[kFilterResonance]);
 	return out;
 }

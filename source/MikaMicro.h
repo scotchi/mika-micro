@@ -4,6 +4,7 @@
 #include <array>
 #include "IPlug_include_in_plug_hdr.h"
 #include "IMidiQueue.h"
+#include "Oscillator.h"
 #include "Parameters.h"
 #include <vector>
 #include "Voice.h"
@@ -27,6 +28,7 @@ private:
 	std::array<double, kNumParameters> parameters;
 	IMidiQueue midiQueue;
 	double dt = 0.0;
+	Oscillator lfo;
 	std::vector<Voice> voices;
 };
 

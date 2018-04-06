@@ -54,11 +54,11 @@ public:
 	void Release() { volEnv.stage = kRelease; }
 	bool IsReleased() { return volEnv.stage == kRelease; }
 	double GetVolume() { return volEnv.Get(); }
-	double Get(double dt);
+	double Get(double dt, double lfoValue);
 
 private:
-	double GetOscillators(double dt);
-	double GetFilterCutoff();
+	double GetOscillators(double dt, double lfoValue);
+	double GetFilterCutoff(double lfoValue);
 
 	double osc1Pitch = 1.0;
 	double osc1SplitFactorA = 1.0;
@@ -74,6 +74,7 @@ private:
 	double baseFrequency = 440.0;
 	Envelope volEnv;
 	Envelope modEnv;
+	Envelope lfoEnv;
 	Oscillator oscFm;
 	Oscillator osc1a;
 	Oscillator osc1b;
