@@ -196,5 +196,8 @@ void MikaMicro::OnParamChange(int paramIdx)
 	case kOsc2Split:
 		for (auto &voice : voices) voice.SetOsc2Split(parameters[kOsc2Split]);
 		break;
+	case kFilterEnabled:
+		for (auto &voice : voices) voice.SetFilterEnabled(parameters[kFilterEnabled]);
+		break;
 	}
 }

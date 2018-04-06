@@ -2,6 +2,11 @@
 
 double Filter::Process(double dt, double input, double targetCutoff, double resonance)
 {
+	// on/off smoothing
+	mix = lerp(mix, enabled ? 1.1 : -.1, 100.0 * dt);
+	mix = mix > 1.0 ? 1.0 : mix < 0.0 ? 0.0 : mix;
+	if (mix == 0.0) return input;
+
 	// cutoff clamping
 	targetCutoff = targetCutoff > 8000.0 ? 8000.0 : targetCutoff < 20.0 ? 20.0 : targetCutoff;
 
@@ -23,5 +28,5 @@ double Filter::Process(double dt, double input, double targetCutoff, double reso
 	low += f * band;
 	low = fastAtan(low * .1) * 10.0;
 
-	return low;
+	return input * (1.0 - mix) + low * mix;
 }

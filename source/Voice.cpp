@@ -13,7 +13,6 @@ void Voice::Start()
 		osc2bMix = p[kOsc2Split] != 0.0 ? 1.0 : 0.0;
 		volEnv.Reset();
 		filter.Reset();
-		filterMix = p[kFilterEnabled] ? 1.0 : 0.0;
 	}
 	volEnv.stage = kAttack;
 }
@@ -75,15 +74,7 @@ double Voice::Get(double dt)
 {
 	volEnv.Update(dt, p[kVolEnvA], p[kVolEnvD], p[kVolEnvS], p[kVolEnvR]);
 	if (GetVolume() == 0.0 && filter.IsSilent()) return 0.0;
-
-	// oscillators
-	auto oscOut = GetOscillators(dt) * volEnv.Get();
-
-	// filter
-	filterMix = lerp(filterMix, p[kFilterEnabled] ? 1.1 : -.1, 100.0 * dt);
-	filterMix = filterMix > 1.0 ? 1.0 : filterMix < 0.0 ? 0.0 : filterMix;
-	auto filterOut = filterMix > 0.0 ? filter.Process(dt, oscOut, p[kFilterCutoff], p[kFilterResonance]) : 0.0;
-	auto out = oscOut * (1.0 - filterMix) + filterOut * filterMix;
-
+	auto out = GetOscillators(dt) * volEnv.Get();
+	out = filter.Process(dt, out, p[kFilterCutoff], p[kFilterResonance]);
 	return out;
 }

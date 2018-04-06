@@ -41,6 +41,7 @@ public:
 		osc2SplitFactorA = pitchFactor(s);
 		osc2SplitFactorB = pitchFactor(-s);
 	}
+	void SetFilterEnabled(bool e) { filter.SetEnabled(e); }
 
 	void SetNote(int n)
 	{
@@ -66,7 +67,6 @@ private:
 	double osc2SplitFactorA = 1.0;
 	double osc2SplitFactorB = 1.0;
 	double osc2bMix = 0.0;
-	double filterMix = 0.0;
 
 	std::array<double, kNumParameters> &p;
 	int note = 69;
