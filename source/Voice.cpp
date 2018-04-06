@@ -9,6 +9,8 @@ void Voice::Start()
 		osc1b.Reset(p[kOsc1Split] < 0.0 ? .33 : 0.0);
 		osc2a.Reset();
 		osc2b.Reset(p[kOsc2Split] < 0.0 ? .33 : 0.0);
+		osc1bMix = p[kOsc1Split] != 0.0 ? 1.0 : 0.0;
+		osc2bMix = p[kOsc2Split] != 0.0 ? 1.0 : 0.0;
 		volEnv.Reset();
 		filter.Reset();
 	}
@@ -17,8 +19,13 @@ void Voice::Start()
 
 double Voice::GetOscillators(double dt)
 {
+	// oscillator frequencies
 	auto osc1Frequency = baseFrequency * osc1Pitch;
 	auto osc2Frequency = baseFrequency * osc2Pitch;
+
+	// oscillator split smoothing
+	osc1bMix = lerp(osc1bMix, (p[kOsc1Split] != 0.0 ? 1.0 : 0.0), 100.0 * dt);
+	osc2bMix = lerp(osc2bMix, (p[kOsc2Split] != 0.0 ? 1.0 : 0.0), 100.0 * dt);
 
 	// fm
 	auto fmFactor = 1.0;
@@ -36,10 +43,10 @@ double Voice::GetOscillators(double dt)
 	{
 		osc1a.Update(dt, osc1Frequency * osc1SplitFactorA);
 		osc1Out += osc1a.Get((EWaveforms)(int)p[kOsc1Wave]);
-		if (p[kOsc1Split] != 0.0)
+		if (osc1bMix > 0.0)
 		{
 			osc1b.Update(dt, osc1Frequency * osc1SplitFactorB);
-			osc1Out += osc1b.Get((EWaveforms)(int)p[kOsc1Wave]);
+			osc1Out += osc1bMix * osc1b.Get((EWaveforms)(int)p[kOsc1Wave]);
 		}
 	}
 
@@ -49,10 +56,10 @@ double Voice::GetOscillators(double dt)
 	{
 		osc2a.Update(dt, osc2Frequency * osc2SplitFactorA);
 		osc2Out += osc2a.Get((EWaveforms)(int)p[kOsc2Wave]);
-		if (p[kOsc2Split] != 0.0)
+		if (osc2bMix > 0.0)
 		{
 			osc2b.Update(dt, osc2Frequency * osc2SplitFactorB);
-			osc2Out += osc2b.Get((EWaveforms)(int)p[kOsc2Wave]);
+			osc2Out += osc2bMix * osc2b.Get((EWaveforms)(int)p[kOsc2Wave]);
 		}
 	}
 

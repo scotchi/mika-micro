@@ -44,9 +44,11 @@ private:
 	double osc1Pitch = 1.0;
 	double osc1SplitFactorA = 1.0;
 	double osc1SplitFactorB = 1.0;
+	double osc1bMix = 0.0;
 	double osc2Pitch = 1.0;
 	double osc2SplitFactorA = 1.0;
 	double osc2SplitFactorB = 1.0;
+	double osc2bMix = 0.0;
 
 	std::array<double, kNumParameters> &p;
 	int note = 69;
