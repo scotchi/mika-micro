@@ -26,8 +26,8 @@ void MikaMicro::ProcessDoubleReplacing(double** inputs, double** outputs, int nF
 {
 	for (int s = 0; s < nFrames; s++)
 	{
-		osc.Update(dt, 440.0);
-		auto out = osc.Get(kSine) * .25;
+		osc.Update(dt, 110.0);
+		auto out = osc.Get(kSaw) * .25;
 		outputs[0][s] = outputs[1][s] = out;
 	}
 }
