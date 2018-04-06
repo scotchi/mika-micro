@@ -1,10 +1,24 @@
 #include "Voice.h"
 
+void Voice::Start()
+{
+	if (GetVolume() == 0.0)
+	{
+		oscFm.Reset();
+		osc1a.Reset();
+		osc1b.Reset(p[kOsc1Split] < 0.0 ? .33 : 0.0);
+		osc2a.Reset();
+		osc2b.Reset(p[kOsc2Split] < 0.0 ? .33 : 0.0);
+	}
+	volEnv.stage = kAttack;
+}
+
 double Voice::GetOscillators(double dt)
 {
 	auto osc1Frequency = baseFrequency * osc1Pitch;
 	auto osc2Frequency = baseFrequency * osc2Pitch;
 
+	// fm
 	auto fmFactor = 1.0;
 	if (p[kFmMode] != 0)
 	{
@@ -14,6 +28,7 @@ double Voice::GetOscillators(double dt)
 		if (p[kFmMode] == 2) osc2Frequency *= fmFactor;
 	}
 
+	// oscillator 1
 	auto osc1Out = 0.0;
 	if (p[kOscMix] < 1.0)
 	{
@@ -26,6 +41,7 @@ double Voice::GetOscillators(double dt)
 		}
 	}
 
+	// oscillator 2
 	auto osc2Out = 0.0;
 	if (p[kOscMix] > 0.0)
 	{
@@ -38,6 +54,7 @@ double Voice::GetOscillators(double dt)
 		}
 	}
 
+	// mix
 	auto out = osc1Out * (1.0 - p[kOscMix]) + osc2Out * p[kOscMix];
 	return out / (1.0 + abs(.5 - p[kOscMix])) * 1.5;
 }

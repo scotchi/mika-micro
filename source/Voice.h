@@ -30,22 +30,9 @@ public:
 		baseFrequency = pitchToFrequency(n);
 	};
 	int GetNote() { return note; }
-	void Start()
-	{
-		if (GetVolume() == 0.0)
-		{
-			oscFm.Reset();
-			osc1a.Reset();
-			osc1b.Reset(p[kOsc1Split] < 0.0 ? .33 : 0.0);
-			osc2a.Reset();
-			osc2b.Reset(p[kOsc2Split] < 0.0 ? .33 : 0.0);
-		}
-		volEnv.stage = kAttack;
-	}
-	void Release()
-	{
-		volEnv.stage = kRelease;
-	}
+	
+	void Start();
+	void Release() { volEnv.stage = kRelease; }
 	bool IsReleased() { return volEnv.stage == kRelease; }
 	double GetVolume() { return volEnv.Get(); }
 	double Get(double dt);
