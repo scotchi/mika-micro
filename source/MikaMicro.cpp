@@ -5,6 +5,9 @@
 
 void MikaMicro::InitParameters()
 {
+	GetParam(kOsc1Coarse)->InitInt("Oscillator 1 coarse", 0, -24, 24);
+	GetParam(kOsc1Fine)->InitDouble("Oscillator 1 fine", 0.0, -1.0, 1.0, .01, "semitones");
+
 	GetParam(kVolEnvA)->InitDouble("Volume envelope attack", 1.0, 0.1, 1000.0, .01);
 	GetParam(kVolEnvD)->InitDouble("Volume envelope decay", 1.0, 0.1, 1000.0, .01);
 	GetParam(kVolEnvS)->InitDouble("Volume envelope sustain", 0.5, 0.0, 1.0, .01);
@@ -17,6 +20,9 @@ void MikaMicro::InitGraphics()
 	pGraphics->AttachPanelBackground(&COLOR_GRAY);
 
 	IBitmap knob = pGraphics->LoadIBitmap(KNOB_ID, KNOB_FN, 60);
+
+	pGraphics->AttachControl(new IKnobMultiControl(this, 50, 50, kOsc1Coarse, &knob));
+	pGraphics->AttachControl(new IKnobMultiControl(this, 100, 50, kOsc1Fine, &knob));
 
 	AttachGraphics(pGraphics);
 }
@@ -80,4 +86,12 @@ void MikaMicro::OnParamChange(int paramIdx)
 	IMutexLock lock(this);
 
 	parameters[paramIdx] = GetParam(paramIdx)->Value();
+
+	switch (paramIdx)
+	{
+	case kOsc1Coarse:
+	case kOsc1Fine:
+		for (auto &voice : voices) voice.SetOsc1Pitch(parameters[kOsc1Coarse] + parameters[kOsc1Fine]);
+		break;
+	}
 }
