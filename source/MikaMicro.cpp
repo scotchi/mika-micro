@@ -7,11 +7,12 @@ void MikaMicro::InitParameters()
 {
 	GetParam(kOsc1Coarse)->InitInt("Oscillator 1 coarse", 0, -24, 24);
 	GetParam(kOsc1Fine)->InitDouble("Oscillator 1 fine", 0.0, -1.0, 1.0, .01, "semitones");
+	GetParam(kOsc1Split)->InitDouble("Oscillator 1 split", 0.0, -.5, .5, .01, "semitones");
 
-	GetParam(kVolEnvA)->InitDouble("Volume envelope attack", 1.0, 0.1, 1000.0, .01);
+	GetParam(kVolEnvA)->InitDouble("Volume envelope attack", 1000.0, 0.1, 1000.0, .01);
 	GetParam(kVolEnvD)->InitDouble("Volume envelope decay", 1.0, 0.1, 1000.0, .01);
 	GetParam(kVolEnvS)->InitDouble("Volume envelope sustain", 0.5, 0.0, 1.0, .01);
-	GetParam(kVolEnvR)->InitDouble("Volume envelope release", 1.0, 0.1, 1000.0, .01);
+	GetParam(kVolEnvR)->InitDouble("Volume envelope release", 1000.0, 0.1, 1000.0, .01);
 }
 
 void MikaMicro::InitGraphics()
@@ -23,6 +24,7 @@ void MikaMicro::InitGraphics()
 
 	pGraphics->AttachControl(new IKnobMultiControl(this, 50, 50, kOsc1Coarse, &knob));
 	pGraphics->AttachControl(new IKnobMultiControl(this, 100, 50, kOsc1Fine, &knob));
+	pGraphics->AttachControl(new IKnobMultiControl(this, 150, 50, kOsc1Split, &knob));
 
 	AttachGraphics(pGraphics);
 }
@@ -92,6 +94,9 @@ void MikaMicro::OnParamChange(int paramIdx)
 	case kOsc1Coarse:
 	case kOsc1Fine:
 		for (auto &voice : voices) voice.SetOsc1Pitch(parameters[kOsc1Coarse] + parameters[kOsc1Fine]);
+		break;
+	case kOsc1Split:
+		for (auto &voice : voices) voice.SetOsc1Split(parameters[kOsc1Split]);
 		break;
 	}
 }
