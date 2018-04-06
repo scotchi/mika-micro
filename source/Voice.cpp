@@ -1,6 +1,6 @@
 #include "Voice.h"
 
-double Voice::Get(double dt, std::array<double, kNumParameters>& p)
+double Voice::Get(double dt)
 {
 	volEnv.Update(dt, p[kVolEnvA], p[kVolEnvD], p[kVolEnvS], p[kVolEnvR]);
 	osc.Update(dt, baseFrequency);

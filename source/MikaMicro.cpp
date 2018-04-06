@@ -28,6 +28,7 @@ MikaMicro::MikaMicro(IPlugInstanceInfo instanceInfo)
 
 	InitParameters();
 	InitGraphics();
+	for (int i = 0; i < 8; i++) voices.push_back(Voice(parameters));
 	MakeDefaultPreset("-", 1);
 }
 
@@ -62,7 +63,7 @@ void MikaMicro::ProcessDoubleReplacing(double** inputs, double** outputs, int nF
 	{
 		FlushMidi(s);
 		auto out = 0.0;
-		for (auto &voice : voices) out += voice.Get(dt, parameters) * .25;
+		for (auto &voice : voices) out += voice.Get(dt) * .25;
 		outputs[0][s] = outputs[1][s] = out;
 	}
 }
