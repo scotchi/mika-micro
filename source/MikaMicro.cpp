@@ -3,6 +3,14 @@
 #include "IControl.h"
 #include "resource.h"
 
+enum EVoiceModes
+{
+	kPoly,
+	kMono,
+	kLegato,
+	kNumVoiceModes
+};
+
 void MikaMicro::InitParameters()
 {
 	// oscillators
@@ -51,8 +59,8 @@ void MikaMicro::InitParameters()
 	GetParam(kLfoCutoff)->InitDouble("Vibrato to filter cutoff", 0.0, -8000.0, 8000.0, .01);
 
 	// master
-	//GetParam(kVoiceMode)->InitEnum("Voice mode", kVoiceModeLegato, kNumVoiceModes);
-	//GetParam(kGlideSpeed)->InitDouble("Glide speed", 1.0, 1.0, 1000.0, .01, "", "", .1);
+	GetParam(kVoiceMode)->InitEnum("Voice mode", kLegato, kNumVoiceModes);
+	GetParam(kGlideSpeed)->InitDouble("Glide speed", 1.0, 1.0, 1000.0, .01, "", "", .1);
 	//GetParam(kMasterVolume)->InitDouble("Master volume", 0.25, 0.0, 0.5, .01);
 }
 
@@ -127,8 +135,8 @@ void MikaMicro::InitGraphics()
 	pGraphics->AttachControl(new IKnobMultiControl(this, 203 * 4, 66.5 * 4, kLfoCutoff, &knobMiddle));
 
 	// master
-	//pGraphics->AttachControl(new ISwitchControl(this, 6 * 4, 90 * 4, kVoiceMode, &fmModeSwitch));
-	//pGraphics->AttachControl(new IKnobMultiControl(this, 22 * 4, 90 * 4, kGlideSpeed, &knobLeft));
+	pGraphics->AttachControl(new ISwitchControl(this, 6 * 4, 90 * 4, kVoiceMode, &fmModeSwitch));
+	pGraphics->AttachControl(new IKnobMultiControl(this, 22 * 4, 90 * 4, kGlideSpeed, &knobLeft));
 	//pGraphics->AttachControl(new IKnobMultiControl(this, 38 * 4, 90 * 4, kMasterVolume, &knobLeft));
 
 	//pGraphics->AttachControl(new PresetMenu(this, IRECT(0, 0, 100, 25)));
@@ -155,19 +163,58 @@ void MikaMicro::FlushMidi(int sample)
 		auto *message = midiQueue.Peek();
 		if (message->mOffset > sample) break;
 
+		auto voiceMode = (EVoiceModes)(int)parameters[kVoiceMode];
+		auto velocity = pow(message->Velocity() * .0078125, 1.25);
+
 		if (message->StatusMsg() == IMidiMsg::kNoteOff || (message->StatusMsg() == IMidiMsg::kNoteOn && message->Velocity() == 0))
 		{
-			for (auto &voice : voices)
-				if (voice.GetNote() == message->NoteNumber()) voice.Release();
+			heldNotes.erase(std::remove(std::begin(heldNotes), std::end(heldNotes), message->NoteNumber()), std::end(heldNotes));
+			switch (voiceMode)
+			{
+			case kPoly:
+				for (auto &voice : voices)
+					if (voice.GetNote() == message->NoteNumber()) voice.Release();
+				break;
+			case kMono:
+			case kLegato:
+				if (heldNotes.empty())
+					voices[0].Release();
+				else
+					voices[0].SetNote(heldNotes.back());
+				break;
+			}
 		}
 		else if (message->StatusMsg() == IMidiMsg::kNoteOn)
 		{
-			auto voice = std::min_element(std::begin(voices), std::end(voices), [](Voice a, Voice b) {
-				return a.IsReleased() == b.IsReleased() ? a.GetVolume() < b.GetVolume() : a.IsReleased();
-			});
-			voice->SetNote(message->NoteNumber());
-			voice->SetVelocity(pow(message->Velocity() * .0078125, 1.25));
-			voice->Start();
+			switch (voiceMode)
+			{
+			case kPoly:
+			{
+				auto voice = std::min_element(std::begin(voices), std::end(voices), [](Voice a, Voice b) {
+					return a.IsReleased() == b.IsReleased() ? a.GetVolume() < b.GetVolume() : a.IsReleased();
+				});
+				voice->SetNote(message->NoteNumber());
+				voice->SetVelocity(velocity);
+				voice->ResetPitch();
+				voice->Start();
+				break;
+			}
+			case kMono:
+				voices[0].SetNote(message->NoteNumber());
+				voices[0].SetVelocity(velocity);
+				voices[0].Start();
+				break;
+			case kLegato:
+				voices[0].SetNote(message->NoteNumber());
+				if (heldNotes.empty())
+				{
+					voices[0].SetVelocity(velocity);
+					voices[0].ResetPitch();
+					voices[0].Start();
+				}
+				break;
+			}
+			heldNotes.push_back(message->NoteNumber());
 		}
 		else if (message->StatusMsg() == IMidiMsg::kPitchWheel)
 		{
@@ -218,7 +265,7 @@ void MikaMicro::OnParamChange(int paramIdx)
 	case kModEnvD:
 	case kModEnvR:
 	case kLfoDelay:
-	//case kGlideSpeed:
+	case kGlideSpeed:
 		parameters[paramIdx] = GetParam(paramIdx)->GetMax() + GetParam(paramIdx)->GetMin() - GetParam(paramIdx)->Value();
 	}
 
@@ -246,6 +293,9 @@ void MikaMicro::OnParamChange(int paramIdx)
 		break;
 	case kFilterEnabled:
 		for (auto &voice : voices) voice.SetFilterEnabled(parameters[kFilterEnabled]);
+		break;
+	case kVoiceMode:
+		for (int i = 1; i < std::size(voices); i++) voices[i].Release();
 		break;
 	}
 }

@@ -100,12 +100,23 @@ double Voice::GetFilterCutoff(double lfoValue)
 
 double Voice::Get(double dt, double lfoValue)
 {
+	// update volume envelope and skip processing if voice is silent
 	volEnv.Update(dt, p[kVolEnvA], p[kVolEnvD], p[kVolEnvS], p[kVolEnvR]);
 	if (GetVolume() == 0.0 && filter.IsSilent()) return 0.0;
+
+	// update mod envelopes
 	modEnv.Update(dt, p[kModEnvA], p[kModEnvD], p[kModEnvS], p[kModEnvR]);
 	lfoEnv.Update(dt, p[kLfoDelay], 0.5, 1.0, 0.5);
 	lfoValue *= lfoEnv.Get(0.0);
+
+	// pitch glide
+	baseFrequency = lerp(baseFrequency, targetFrequency, p[kGlideSpeed] * dt);
+
+	// get oscillators
 	auto out = GetOscillators(dt, lfoValue) * volEnv.Get(p[kVolEnvV]);
+
+	// filter
 	out = filter.Process(dt, out, GetFilterCutoff(lfoValue), p[kFilterResonance]);
+
 	return out;
 }

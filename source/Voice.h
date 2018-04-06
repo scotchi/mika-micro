@@ -46,9 +46,10 @@ public:
 	void SetNote(int n)
 	{
 		note = n;
-		baseFrequency = pitchToFrequency(n);
+		targetFrequency = pitchToFrequency(n);
 	};
 	int GetNote() { return note; }
+	void ResetPitch() { baseFrequency = targetFrequency; }
 	void SetVelocity(double v)
 	{
 		volEnv.SetVelocity(v);
@@ -78,6 +79,7 @@ private:
 
 	std::array<double, kNumParameters> &p;
 	int note = 69;
+	double targetFrequency = 440.0;
 	double baseFrequency = 440.0;
 	double pitchBendFactor = 1.0;
 	Envelope volEnv;

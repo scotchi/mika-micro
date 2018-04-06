@@ -27,6 +27,7 @@ private:
 	IGraphics* pGraphics;
 	std::array<double, kNumParameters> parameters;
 	IMidiQueue midiQueue;
+	std::vector<int> heldNotes;
 	double dt = 0.0;
 	Oscillator lfo;
 	std::vector<Voice> voices;
