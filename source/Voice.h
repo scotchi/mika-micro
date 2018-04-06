@@ -14,14 +14,14 @@ public:
 	void SetOsc1Pitch(double p) { osc1Pitch = pitchFactor(p); }
 	void SetOsc1Split(double s)
 	{
-		osc1SplitFactorA = pitchFactor(1.0 + s);
-		osc1SplitFactorB = pitchFactor(1.0 - s);
+		osc1SplitFactorA = pitchFactor(s);
+		osc1SplitFactorB = pitchFactor(s);
 	}
 	void SetOsc2Pitch(double p) { osc2Pitch = pitchFactor(p); }
 	void SetOsc2Split(double s)
 	{
-		osc2SplitFactorA = pitchFactor(1.0 + s);
-		osc2SplitFactorB = pitchFactor(1.0 - s);
+		osc2SplitFactorA = pitchFactor(s);
+		osc2SplitFactorB = pitchFactor(s);
 	}
 
 	void SetNote(int n)
