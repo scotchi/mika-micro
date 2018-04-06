@@ -48,6 +48,7 @@ public:
 		note = n;
 		baseFrequency = pitchToFrequency(n);
 	};
+	void SetPitchBendFactor(double f) { pitchBendFactor = f; }
 	int GetNote() { return note; }
 	
 	void Start();

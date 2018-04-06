@@ -24,9 +24,9 @@ void Voice::Start()
 double Voice::GetOscillators(double dt, double lfoValue)
 {
 	// oscillator frequencies
-	auto osc1Frequency = baseFrequency * osc1Pitch;
+	auto osc1Frequency = baseFrequency * osc1Pitch * pitchBendFactor;
 	if (p[kLfoAmount] < 0.0) osc1Frequency *= 1 + abs(p[kLfoAmount]) * lfoValue;
-	auto osc2Frequency = baseFrequency * osc2Pitch;
+	auto osc2Frequency = baseFrequency * osc2Pitch * pitchBendFactor;
 	if (p[kLfoAmount] != 0.0) osc2Frequency *= 1 + abs(p[kLfoAmount]) * lfoValue;
 
 	// oscillator split smoothing
