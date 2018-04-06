@@ -7,7 +7,7 @@ enum EWaveforms
 {
 	kSine,
 	kSaw,
-	numWaveforms
+	kNumWaveforms
 };
 
 class Oscillator

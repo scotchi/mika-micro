@@ -3,6 +3,14 @@
 #include "IControl.h"
 #include "resource.h"
 
+void MikaMicro::InitParameters()
+{
+	GetParam(kVolEnvA)->InitDouble("Volume envelope attack", 1.0, 0.1, 1000.0, .01);
+	GetParam(kVolEnvD)->InitDouble("Volume envelope decay", 1.0, 0.1, 1000.0, .01);
+	GetParam(kVolEnvS)->InitDouble("Volume envelope sustain", 0.5, 0.0, 1.0, .01);
+	GetParam(kVolEnvR)->InitDouble("Volume envelope release", 1.0, 0.1, 1000.0, .01);
+}
+
 void MikaMicro::InitGraphics()
 {
 	IGraphics* pGraphics = MakeGraphics(this, GUI_WIDTH, GUI_HEIGHT);
@@ -14,21 +22,23 @@ void MikaMicro::InitGraphics()
 }
 
 MikaMicro::MikaMicro(IPlugInstanceInfo instanceInfo)
-  :	IPLUG_CTOR(0, 1, instanceInfo)
+  :	IPLUG_CTOR(kNumParameters, 1, instanceInfo)
 {
 	TRACE;
 
+	InitParameters();
 	InitGraphics();
 	MakeDefaultPreset("-", 1);
+
+	voice.SetNote(69);
+	voice.Start();
 }
 
 void MikaMicro::ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames)
 {
 	for (int s = 0; s < nFrames; s++)
 	{
-		env.Update(dt, envParams);
-		osc.Update(dt, 110.0);
-		auto out = osc.Get(kSaw) * .25 * env.Get();
+		auto out = voice.Get(dt, parameters) * .25;
 		outputs[0][s] = outputs[1][s] = out;
 	}
 }
@@ -43,4 +53,6 @@ void MikaMicro::Reset()
 void MikaMicro::OnParamChange(int paramIdx)
 {
 	IMutexLock lock(this);
+
+	parameters[paramIdx] = GetParam(paramIdx)->Value();
 }

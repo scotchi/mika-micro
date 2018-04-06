@@ -1,9 +1,10 @@
 #ifndef __MIKAMICRO__
 #define __MIKAMICRO__
 
+#include <array>
 #include "IPlug_include_in_plug_hdr.h"
-#include "Envelope.h"
-#include "Oscillator.h"
+#include "Parameters.h"
+#include "Voice.h"
 
 class MikaMicro : public IPlug
 {
@@ -15,12 +16,12 @@ public:
 	void ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames);
 
 private:
+	void InitParameters();
 	void InitGraphics();
 
-	Envelope env;
-	EnvelopeParameters envParams{ 1.0, 1.0, .5, 1.0 };
-	Oscillator osc;
+	std::array<double, kNumParameters> parameters;
 	double dt = 0.0;
+	Voice voice;
 };
 
 #endif

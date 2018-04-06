@@ -9,18 +9,10 @@ enum EEnvelopeStage
 	kRelease
 };
 
-struct EnvelopeParameters
-{
-	double a;
-	double d;
-	double s;
-	double r;
-};
-
 class Envelope
 {
 public:
-	void Update(double dt, EnvelopeParameters p);
+	void Update(double dt, double a, double d, double s, double r);
 	double Get() { return value; }
 
 	EEnvelopeStage stage = kAttack;
