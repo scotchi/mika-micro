@@ -3,6 +3,7 @@
 #include <array>
 #include <cmath>
 #include "Envelope.h"
+#include "Filter.h"
 #include "Oscillator.h"
 #include "Parameters.h"
 
@@ -56,5 +57,6 @@ private:
 	Oscillator osc1b;
 	Oscillator osc2a;
 	Oscillator osc2b;
+	Filter filter;
 };
 

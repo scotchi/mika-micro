@@ -9,6 +9,8 @@ void Voice::Start()
 		osc1b.Reset(p[kOsc1Split] < 0.0 ? .33 : 0.0);
 		osc2a.Reset();
 		osc2b.Reset(p[kOsc2Split] < 0.0 ? .33 : 0.0);
+		volEnv.Reset();
+		filter.Reset();
 	}
 	volEnv.stage = kAttack;
 }
@@ -62,5 +64,8 @@ double Voice::GetOscillators(double dt)
 double Voice::Get(double dt)
 {
 	volEnv.Update(dt, p[kVolEnvA], p[kVolEnvD], p[kVolEnvS], p[kVolEnvR]);
-	return GetOscillators(dt) * volEnv.Get();
+	if (GetVolume() == 0.0 && filter.IsSilent()) return 0.0;
+	auto out = GetOscillators(dt) * volEnv.Get();
+	if (p[kFilterEnabled]) out = filter.Process(dt, out, p[kFilterCutoff], p[kFilterResonance]);
+	return out;
 }

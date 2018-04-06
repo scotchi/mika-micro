@@ -5,6 +5,7 @@
 
 void MikaMicro::InitParameters()
 {
+	// oscillators
 	GetParam(kOsc1Coarse)->InitInt("Oscillator 1 coarse", 0, -24, 24);
 	GetParam(kOsc1Fine)->InitDouble("Oscillator 1 fine", 0.0, -1.0, 1.0, .01, "semitones");
 	GetParam(kOsc1Split)->InitDouble("Oscillator 1 split", 0.0, -.5, .5, .01, "semitones");
@@ -13,10 +14,18 @@ void MikaMicro::InitParameters()
 	GetParam(kOsc2Split)->InitDouble("Oscillator 2 split", 0.0, -.5, .5, .01, "semitones");
 	GetParam(kOscMix)->InitDouble("Oscillator mix", 0.0, 0.0, 1.0, .01);
 
+	// fm
 	GetParam(kFmMode)->InitEnum("FM mode", 0, 3);
 	GetParam(kFmCoarse)->InitInt("FM coarse", 0, 0, 48, "semitones");
 	GetParam(kFmFine)->InitDouble("FM fine", 0.0, -1.0, 1.0, .01, "semitones");
 
+	// filter
+	GetParam(kFilterEnabled)->InitBool("Filter enabled", false);
+	GetParam(kFilterCutoff)->InitDouble("Filter cutoff", 8000.0, 20.0, 8000.0, .01, "hz");
+	GetParam(kFilterResonance)->InitDouble("Filter resonance", 0.0, 0.0, 1.0, .01);
+	GetParam(kFilterKeyTrack)->InitDouble("Filter key tracking", 0.0, -1.0, 1.0, .01);
+
+	// modulation sources
 	GetParam(kVolEnvA)->InitDouble("Volume envelope attack", 1000.0, 0.1, 1000.0, .01);
 	GetParam(kVolEnvD)->InitDouble("Volume envelope decay", 1.0, 0.1, 1000.0, .01);
 	GetParam(kVolEnvS)->InitDouble("Volume envelope sustain", 0.5, 0.0, 1.0, .01);
@@ -55,9 +64,9 @@ void MikaMicro::InitGraphics()
 	pGraphics->AttachControl(new IKnobMultiControl(this, 54 * 4, 42 * 4, kFmFine, &knobMiddle));
 
 	// filter
-	//pGraphics->AttachControl(new ISwitchControl(this, 22 * 4, 62 * 4, kFilterEnabled, &toggleSwitch));
-	//pGraphics->AttachControl(new IKnobMultiControl(this, 38 * 4, 62 * 4, kFilterCutoff, &knobRight));
-	//pGraphics->AttachControl(new IKnobMultiControl(this, 54 * 4, 62 * 4, kFilterResonance, &knobLeft));
+	pGraphics->AttachControl(new ISwitchControl(this, 22 * 4, 62 * 4, kFilterEnabled, &toggleSwitch));
+	pGraphics->AttachControl(new IKnobMultiControl(this, 38 * 4, 62 * 4, kFilterCutoff, &knobRight));
+	pGraphics->AttachControl(new IKnobMultiControl(this, 54 * 4, 62 * 4, kFilterResonance, &knobLeft));
 	//pGraphics->AttachControl(new IKnobMultiControl(this, 70 * 4, 62 * 4, kFilterKeyTrack, &knobMiddle));
 
 	// modulation sources

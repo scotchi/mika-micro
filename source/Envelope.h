@@ -12,6 +12,7 @@ enum EEnvelopeStage
 class Envelope
 {
 public:
+	void Reset() { value = 0.0; }
 	void Update(double dt, double a, double d, double s, double r);
 	double Get() { return value; }
 
