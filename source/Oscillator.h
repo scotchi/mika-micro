@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <cmath>
 #include "Util.h"
 
@@ -17,16 +18,25 @@ enum EWaveforms
 class Oscillator
 {
 public:
-	void Reset(double p = 0.0) { phase = p; }
+	Oscillator(EWaveforms w) : waveform(w) {}
+
+	void SetWaveform(EWaveforms w) { waveform = w; }
+	void Reset(double p = 0.0)
+	{
+		phase = p;
+		for (int i = 0; i < kNumWaveforms; i++)
+			waveformMix[i] = (int)waveform == i ? 1.0 : 0.0;
+	}
 	void Update(double dt, double frequency);
-	
-	double Get(EWaveforms waveform);
+	double Get();
 
 private:
 	double Blep(double phase);
 
 	double GeneratePulse(double width);
 
+	EWaveforms waveform;
+	std::array<double, kNumWaveforms> waveformMix;
 	double phase = 0.0;
 	double phaseIncrement = 0.0;
 	double triCurrent = 0.0;

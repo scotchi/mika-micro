@@ -176,12 +176,18 @@ void MikaMicro::OnParamChange(int paramIdx)
 
 	switch (paramIdx)
 	{
+	case kOsc1Wave:
+		for (auto &voice : voices) voice.SetOsc1Wave((EWaveforms)(int)parameters[kOsc1Wave]);
+		break;
 	case kOsc1Coarse:
 	case kOsc1Fine:
 		for (auto &voice : voices) voice.SetOsc1Pitch(parameters[kOsc1Coarse] + parameters[kOsc1Fine]);
 		break;
 	case kOsc1Split:
 		for (auto &voice : voices) voice.SetOsc1Split(parameters[kOsc1Split]);
+		break;
+	case kOsc2Wave:
+		for (auto &voice : voices) voice.SetOsc2Wave((EWaveforms)(int)parameters[kOsc2Wave]);
 		break;
 	case kOsc2Coarse:
 	case kOsc2Fine:

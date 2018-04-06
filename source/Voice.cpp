@@ -35,7 +35,7 @@ double Voice::GetOscillators(double dt)
 	if (p[kFmMode] != 0)
 	{
 		oscFm.Update(dt, osc1Frequency);
-		fmFactor = pitchFactor(oscFm.Get(kSine) * (p[kFmCoarse] + p[kFmFine]));
+		fmFactor = pitchFactor(oscFm.Get() * (p[kFmCoarse] + p[kFmFine]));
 		if (p[kFmMode] == 1) osc1Frequency *= fmFactor;
 		if (p[kFmMode] == 2) osc2Frequency *= fmFactor;
 	}
@@ -45,11 +45,11 @@ double Voice::GetOscillators(double dt)
 	if (p[kOscMix] < 1.0)
 	{
 		osc1a.Update(dt, osc1Frequency * osc1SplitFactorA);
-		osc1Out += osc1a.Get((EWaveforms)(int)p[kOsc1Wave]);
+		osc1Out += osc1a.Get();
 		if (osc1bMix > 0.0)
 		{
 			osc1b.Update(dt, osc1Frequency * osc1SplitFactorB);
-			osc1Out += osc1bMix * osc1b.Get((EWaveforms)(int)p[kOsc1Wave]);
+			osc1Out += osc1bMix * osc1b.Get();
 		}
 	}
 
@@ -58,11 +58,11 @@ double Voice::GetOscillators(double dt)
 	if (p[kOscMix] > 0.0)
 	{
 		osc2a.Update(dt, osc2Frequency * osc2SplitFactorA);
-		osc2Out += osc2a.Get((EWaveforms)(int)p[kOsc2Wave]);
+		osc2Out += osc2a.Get();
 		if (osc2bMix > 0.0)
 		{
 			osc2b.Update(dt, osc2Frequency * osc2SplitFactorB);
-			osc2Out += osc2bMix * osc2b.Get((EWaveforms)(int)p[kOsc2Wave]);
+			osc2Out += osc2bMix * osc2b.Get();
 		}
 	}
 

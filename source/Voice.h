@@ -10,13 +10,30 @@
 class Voice
 {
 public:
-	Voice(std::array<double, kNumParameters> &parameters) : p(parameters) {}
+	Voice(std::array<double, kNumParameters> &parameters)
+		: p(parameters),
+		oscFm(kSine),
+		osc1a(kSaw),
+		osc1b(kSaw),
+		osc2a(kSaw),
+		osc2b(kSaw)
+	{}
 
+	void SetOsc1Wave(EWaveforms w)
+	{
+		osc1a.SetWaveform(w);
+		osc1b.SetWaveform(w);
+	}
 	void SetOsc1Pitch(double p) { osc1Pitch = pitchFactor(p); }
 	void SetOsc1Split(double s)
 	{
 		osc1SplitFactorA = pitchFactor(s);
 		osc1SplitFactorB = pitchFactor(-s);
+	}
+	void SetOsc2Wave(EWaveforms w)
+	{
+		osc2a.SetWaveform(w);
+		osc2b.SetWaveform(w);
 	}
 	void SetOsc2Pitch(double p) { osc2Pitch = pitchFactor(p); }
 	void SetOsc2Split(double s)

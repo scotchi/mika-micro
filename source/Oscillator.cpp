@@ -5,6 +5,12 @@ void Oscillator::Update(double dt, double frequency)
 	phaseIncrement = frequency * dt;
 	phase += phaseIncrement;
 	while (phase > 1.0) phase -= 1.0;
+
+	for (int i = 0; i < kNumWaveforms; i++)
+	{
+		waveformMix[i] = lerp(waveformMix[i], (int)waveform == i ? 1.1 : -.1, 100.0 * dt);
+		waveformMix[i] = waveformMix[i] > 1.0 ? 1.0 : waveformMix[i] < 0.0 ? 0.0 : waveformMix[i];
+	}
 }
 
 double Oscillator::Blep(double phase)
@@ -30,26 +36,29 @@ double Oscillator::GeneratePulse(double width)
 	return v;
 }
 
-double Oscillator::Get(EWaveforms waveform)
+double Oscillator::Get()
 {
-	switch (waveform)
+	auto out = 0.0;
+	if (waveformMix[kSine] > 0.0)
+		out += waveformMix[kSine] * sin(phase * twoPi);
+	if (waveformMix[kTriangle] > 0.0)
 	{
-	case kSine:
-		return sin(phase * twoPi);
-	case kTriangle:
 		triLast = triCurrent;
 		triCurrent = phaseIncrement * GeneratePulse(.5) + (1 - phaseIncrement) * triLast;
-		return triCurrent * 5;
-	case kSaw:
-		return 1.0 - 2.0 * phase + Blep(phase);
-	case kSquare:
-		return GeneratePulse(.5);
-	case kPulse:
-		return GeneratePulse(.75);
-	case kNoise:
+		out += waveformMix[kTriangle] * triCurrent * 5;
+	}
+	if (waveformMix[kSaw] > 0.0)
+		out += waveformMix[kSaw] * (1.0 - 2.0 * phase + Blep(phase));
+	if (waveformMix[kSquare] > 0.0)
+		out += waveformMix[kSquare] * GeneratePulse(.5);
+	if (waveformMix[kPulse] > 0.0)
+		out += waveformMix[kPulse] * GeneratePulse(.75);
+	if (waveformMix[kNoise] > 0.0)
+	{
 		noiseValue += 19.0;
 		noiseValue *= noiseValue;
 		noiseValue -= (int)noiseValue;
-		return noiseValue - .5;
+		out += waveformMix[kNoise] * (noiseValue - .5);
 	}
+	return out;
 }
