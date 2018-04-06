@@ -24,13 +24,11 @@ MikaMicro::MikaMicro(IPlugInstanceInfo instanceInfo)
 
 void MikaMicro::ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames)
 {
-	double* out1 = outputs[0];
-	double* out2 = outputs[1];
-
-	for (int s = 0; s < nFrames; ++s, ++out1, ++out2)
+	for (int s = 0; s < nFrames; s++)
 	{
-		*out1 = 0;
-		*out2 = 0;
+		osc.Update(dt, 440.0);
+		auto out = osc.Get(kSine) * .25;
+		outputs[0][s] = outputs[1][s] = out;
 	}
 }
 
@@ -38,6 +36,7 @@ void MikaMicro::Reset()
 {
 	TRACE;
 	IMutexLock lock(this);
+	dt = 1.0 / GetSampleRate();
 }
 
 void MikaMicro::OnParamChange(int paramIdx)
