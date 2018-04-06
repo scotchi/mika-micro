@@ -2,22 +2,22 @@
 
 void Oscillator::Update(double dt, double frequency)
 {
-	dt = frequency * dt;
-	t += dt;
-	while (t > 1.0) t -= 1.0;
+	phaseIncrement = frequency * dt;
+	phase += phaseIncrement;
+	while (phase > 1.0) phase -= 1.0;
 }
 
-double Oscillator::Blep(double t)
+double Oscillator::Blep(double phase)
 {
-	if (t < dt)
+	if (phase < phaseIncrement)
 	{
-		t /= dt;
-		return t + t - t * t - 1.0;
+		phase /= phaseIncrement;
+		return phase + phase - phase * phase - 1.0;
 	}
-	else if (t > 1.0 - dt)
+	else if (phase > 1.0 - phaseIncrement)
 	{
-		t = (t - 1.0) / dt;
-		return t * t + t + t + 1.0;
+		phase = (phase - 1.0) / phaseIncrement;
+		return phase * phase + phase + phase + 1.0;
 	}
 	return 0.0;
 }
@@ -27,8 +27,8 @@ double Oscillator::Get(EWaveforms waveform)
 	switch (waveform)
 	{
 	case kSine:
-		return sin(t * twoPi);
+		return sin(phase * twoPi);
 	case kSaw:
-		return 1.0 - 2.0 * t + Blep(t);
+		return 1.0 - 2.0 * phase + Blep(phase);
 	}
 }

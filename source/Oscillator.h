@@ -13,15 +13,15 @@ enum EWaveforms
 class Oscillator
 {
 public:
-	void Reset(double v = 0.0) { t = v; }
+	void Reset(double p = 0.0) { phase = p; }
 	void Update(double dt, double frequency);
 	
 	double Get(EWaveforms waveform);
 
 private:
-	double Blep(double t);
+	double Blep(double phase);
 
-	double t = 0.0;
-	double dt = 0.0;
+	double phase = 0.0;
+	double phaseIncrement = 0.0;
 };
 
