@@ -28,8 +28,8 @@ private:
 	void InitGraphics();
 	void InitVoices();
 	void FlushMidi(int sample);
-
 	double GetDriftValue();
+	double GetVoices();
 
 	IGraphics* pGraphics;
 	std::array<double, kNumParameters> parameters;

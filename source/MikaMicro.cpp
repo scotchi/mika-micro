@@ -139,7 +139,7 @@ void MikaMicro::InitGraphics()
 	pGraphics->AttachControl(new IKnobMultiControl(this, 22 * 4, 90 * 4, kGlideSpeed, &knobLeft));
 	pGraphics->AttachControl(new IKnobMultiControl(this, 38 * 4, 90 * 4, kMasterVolume, &knobLeft));
 
-	pGraphics->AttachControl(new PresetMenu(this, IRECT(0, 0, 100, 25)));
+	//pGraphics->AttachControl(new PresetMenu(this, IRECT(0, 0, 100, 25)));
 
 	AttachGraphics(pGraphics);
 }
@@ -171,16 +171,25 @@ void MikaMicro::FlushMidi(int sample)
 		if (message->mOffset > sample) break;
 
 		auto voiceMode = (EVoiceModes)(int)parameters[kVoiceMode];
+		auto status = message->StatusMsg();
+		auto note = message->NoteNumber();
 		auto velocity = pow(message->Velocity() * .0078125, 1.25);
 
-		if (message->StatusMsg() == IMidiMsg::kNoteOff || (message->StatusMsg() == IMidiMsg::kNoteOn && message->Velocity() == 0))
+		// note off
+		if (status == IMidiMsg::kNoteOff || (status == IMidiMsg::kNoteOn && velocity == 0))
 		{
-			heldNotes.erase(std::remove(std::begin(heldNotes), std::end(heldNotes), message->NoteNumber()), std::end(heldNotes));
+			heldNotes.erase(
+				std::remove(
+					std::begin(heldNotes),
+					std::end(heldNotes),
+					note),
+				std::end(heldNotes));
+
 			switch (voiceMode)
 			{
 			case kPoly:
 				for (auto &voice : voices)
-					if (voice.GetNote() == message->NoteNumber()) voice.Release();
+					if (voice.GetNote() == note) voice.Release();
 				break;
 			case kMono:
 			case kLegato:
@@ -191,28 +200,33 @@ void MikaMicro::FlushMidi(int sample)
 				break;
 			}
 		}
-		else if (message->StatusMsg() == IMidiMsg::kNoteOn)
+		// note on
+		else if (status == IMidiMsg::kNoteOn)
 		{
 			switch (voiceMode)
 			{
 			case kPoly:
 			{
-				auto voice = std::min_element(std::begin(voices), std::end(voices), [](Voice a, Voice b) {
-					return a.IsReleased() == b.IsReleased() ? a.GetVolume() < b.GetVolume() : a.IsReleased();
-				});
-				voice->SetNote(message->NoteNumber());
+				auto voice = std::min_element(
+					std::begin(voices),
+					std::end(voices),
+					[](Voice a, Voice b)
+					{
+						return a.IsReleased() == b.IsReleased() ? a.GetVolume() < b.GetVolume() : a.IsReleased();
+					});
+				voice->SetNote(note);
 				voice->SetVelocity(velocity);
 				voice->ResetPitch();
 				voice->Start();
 				break;
 			}
 			case kMono:
-				voices[0].SetNote(message->NoteNumber());
+				voices[0].SetNote(note);
 				voices[0].SetVelocity(velocity);
 				voices[0].Start();
 				break;
 			case kLegato:
-				voices[0].SetNote(message->NoteNumber());
+				voices[0].SetNote(note);
 				if (heldNotes.empty())
 				{
 					voices[0].SetVelocity(velocity);
@@ -221,14 +235,15 @@ void MikaMicro::FlushMidi(int sample)
 				}
 				break;
 			}
-			heldNotes.push_back(message->NoteNumber());
+
+			heldNotes.push_back(note);
 		}
-		else if (message->StatusMsg() == IMidiMsg::kPitchWheel)
+		else if (status == IMidiMsg::kPitchWheel)
 		{
 			auto f = pitchFactor(message->PitchWheel() * 2.0);
 			for (auto &voice : voices) voice.SetPitchBendFactor(f);
 		}
-		else if (message->StatusMsg() == IMidiMsg::kAllNotesOff)
+		else if (status == IMidiMsg::kAllNotesOff)
 			for (auto &voice : voices) voice.Release();
 
 		midiQueue.Remove();
@@ -237,10 +252,20 @@ void MikaMicro::FlushMidi(int sample)
 
 double MikaMicro::GetDriftValue()
 {
-	driftVelocity += dist(gen) * 10000 * dt;
-	driftVelocity -= driftVelocity * 2 * dt;
+	driftVelocity += dist(gen) * 10000.0 * dt;
+	driftVelocity -= driftVelocity * 2.0 * dt;
 	driftPhase += driftVelocity * dt;
 	return .001 * sin(driftPhase);
+}
+
+double MikaMicro::GetVoices()
+{
+	lfo.Update(dt, parameters[kLfoFrequency]);
+	auto lfoValue = lfo.Get();
+	auto driftValue = GetDriftValue();
+	auto out = 0.0;
+	for (auto &voice : voices) out += voice.Get(dt, lfoValue, driftValue);
+	return out;
 }
 
 void MikaMicro::ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames)
@@ -248,12 +273,7 @@ void MikaMicro::ProcessDoubleReplacing(double** inputs, double** outputs, int nF
 	for (int s = 0; s < nFrames; s++)
 	{
 		FlushMidi(s);
-		lfo.Update(dt, parameters[kLfoFrequency]);
-		auto lfoValue = lfo.Get();
-		auto driftValue = GetDriftValue();
-		auto out = 0.0;
-		for (auto &voice : voices) out += voice.Get(dt, lfoValue, driftValue);
-		outputs[0][s] = outputs[1][s] = out * parameters[kMasterVolume];
+		outputs[0][s] = outputs[1][s] = GetVoices() * parameters[kMasterVolume];
 	}
 }
 
