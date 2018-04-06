@@ -15,6 +15,7 @@ public:
 	MikaMicro(IPlugInstanceInfo instanceInfo);
 
 	void Reset();
+	void GrayOutControls();
 	void OnParamChange(int paramIdx);
 	void ProcessMidiMsg(IMidiMsg *message) { midiQueue.Add(message); }
 	void ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames);
