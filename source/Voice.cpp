@@ -21,12 +21,12 @@ void Voice::Start()
 	lfoEnv.stage = kAttack;
 }
 
-double Voice::GetOscillators(double dt, double lfoValue)
+double Voice::GetOscillators(double dt, double lfoValue, double driftValue)
 {
 	// oscillator frequencies
-	auto osc1Frequency = baseFrequency * osc1Pitch * pitchBendFactor;
+	auto osc1Frequency = baseFrequency * osc1Pitch * pitchBendFactor * (1.0 + driftValue);
 	if (p[kLfoAmount] < 0.0) osc1Frequency *= 1 + abs(p[kLfoAmount]) * lfoValue;
-	auto osc2Frequency = baseFrequency * osc2Pitch * pitchBendFactor;
+	auto osc2Frequency = baseFrequency * osc2Pitch * pitchBendFactor * (1.0 + driftValue);
 	if (p[kLfoAmount] != 0.0) osc2Frequency *= 1 + abs(p[kLfoAmount]) * lfoValue;
 
 	// oscillator split smoothing
@@ -80,9 +80,9 @@ double Voice::GetOscillators(double dt, double lfoValue)
 	return out / (1.0 + abs(.5 - p[kOscMix])) * 1.5;
 }
 
-double Voice::GetFilterCutoff(double lfoValue)
+double Voice::GetFilterCutoff(double lfoValue, double driftValue)
 {
-	auto cutoff = p[kFilterCutoff];
+	auto cutoff = p[kFilterCutoff] * (1.0 + driftValue);
 	if (p[kFilterKeyTrack] != 0.0) cutoff += p[kFilterKeyTrack] * baseFrequency * pitchBendFactor;
 	if (p[kVolEnvCutoff] != 0.0) cutoff += volEnv.Get(p[kVolEnvV]) * p[kVolEnvCutoff];
 	if (p[kModEnvCutoff] != 0.0) cutoff += modEnv.Get(p[kModEnvV]) * p[kModEnvCutoff];
@@ -98,7 +98,7 @@ double Voice::GetFilterCutoff(double lfoValue)
 	return cutoff;
 }
 
-double Voice::Get(double dt, double lfoValue)
+double Voice::Get(double dt, double lfoValue, double driftValue)
 {
 	// update volume envelope and skip processing if voice is silent
 	volEnv.Update(dt, p[kVolEnvA], p[kVolEnvD], p[kVolEnvS], p[kVolEnvR]);
@@ -113,10 +113,10 @@ double Voice::Get(double dt, double lfoValue)
 	baseFrequency = lerp(baseFrequency, targetFrequency, p[kGlideSpeed] * dt);
 
 	// get oscillators
-	auto out = GetOscillators(dt, lfoValue) * volEnv.Get(p[kVolEnvV]);
+	auto out = GetOscillators(dt, lfoValue, driftValue) * volEnv.Get(p[kVolEnvV]);
 
 	// filter
-	out = filter.Process(dt, out, GetFilterCutoff(lfoValue), p[kFilterResonance]);
+	out = filter.Process(dt, out, GetFilterCutoff(lfoValue, driftValue), p[kFilterResonance]);
 
 	return out;
 }

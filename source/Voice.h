@@ -62,11 +62,11 @@ public:
 	void Release() { volEnv.stage = kRelease; }
 	bool IsReleased() { return volEnv.stage == kRelease; }
 	double GetVolume() { return volEnv.Get(p[kVolEnvV]); }
-	double Get(double dt, double lfoValue);
+	double Get(double dt, double lfoValue, double driftValue);
 
 private:
-	double GetOscillators(double dt, double lfoValue);
-	double GetFilterCutoff(double lfoValue);
+	double GetOscillators(double dt, double lfoValue, double driftValue);
+	double GetFilterCutoff(double lfoValue, double driftValue);
 
 	double osc1Pitch = 1.0;
 	double osc1SplitFactorA = 1.0;

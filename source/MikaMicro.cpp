@@ -146,7 +146,9 @@ void MikaMicro::InitGraphics()
 
 MikaMicro::MikaMicro(IPlugInstanceInfo instanceInfo)
 	: IPLUG_CTOR(kNumParameters, 1, instanceInfo),
-	lfo(kSine)
+	lfo(kSine),
+	gen(rd()),
+	dist(-1.0, 1.0)
 {
 	TRACE;
 
@@ -228,6 +230,14 @@ void MikaMicro::FlushMidi(int sample)
 	}
 }
 
+double MikaMicro::GetDriftValue()
+{
+	driftVelocity += dist(gen) * 10000 * dt;
+	driftVelocity -= driftVelocity * 2 * dt;
+	driftPhase += driftVelocity * dt;
+	return .001 * sin(driftPhase);
+}
+
 void MikaMicro::ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames)
 {
 	for (int s = 0; s < nFrames; s++)
@@ -235,8 +245,9 @@ void MikaMicro::ProcessDoubleReplacing(double** inputs, double** outputs, int nF
 		FlushMidi(s);
 		lfo.Update(dt, parameters[kLfoFrequency]);
 		auto lfoValue = lfo.Get();
+		auto driftValue = GetDriftValue();
 		auto out = 0.0;
-		for (auto &voice : voices) out += voice.Get(dt, lfoValue);
+		for (auto &voice : voices) out += voice.Get(dt, lfoValue, driftValue);
 		outputs[0][s] = outputs[1][s] = out * parameters[kMasterVolume];
 	}
 }
