@@ -40,12 +40,16 @@ void MikaMicro::FlushMidi(int sample)
 
 		if (message->StatusMsg() == IMidiMsg::kNoteOff || (message->StatusMsg() == IMidiMsg::kNoteOn && message->Velocity() == 0))
 		{
-			voice.Release();
+			for (auto &voice : voices)
+				if (voice.GetNote() == message->NoteNumber()) voice.Release();
 		}
 		else if (message->StatusMsg() == IMidiMsg::kNoteOn)
 		{
-			voice.SetNote(message->NoteNumber());
-			voice.Start();
+			auto voice = std::min_element(std::begin(voices), std::end(voices), [](Voice a, Voice b) {
+				return a.IsReleased() == b.IsReleased() ? a.GetVolume() < b.GetVolume() : a.IsReleased();
+			});
+			voice->SetNote(message->NoteNumber());
+			voice->Start();
 		}
 
 		midiQueue.Remove();
@@ -57,7 +61,8 @@ void MikaMicro::ProcessDoubleReplacing(double** inputs, double** outputs, int nF
 	for (int s = 0; s < nFrames; s++)
 	{
 		FlushMidi(s);
-		auto out = voice.Get(dt, parameters) * .25;
+		auto out = 0.0;
+		for (auto &voice : voices) out += voice.Get(dt, parameters) * .25;
 		outputs[0][s] = outputs[1][s] = out;
 	}
 }

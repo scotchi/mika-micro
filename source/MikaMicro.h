@@ -25,7 +25,7 @@ private:
 	std::array<double, kNumParameters> parameters;
 	IMidiQueue midiQueue;
 	double dt = 0.0;
-	Voice voice;
+	std::array<Voice, 8> voices;
 };
 
 #endif

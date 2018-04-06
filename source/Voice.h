@@ -13,6 +13,7 @@ public:
 		note = n;
 		baseFrequency = pitchToFrequency(n);
 	};
+	int GetNote() { return note; }
 	void Start()
 	{
 		volEnv.stage = kAttack;
@@ -22,6 +23,7 @@ public:
 		volEnv.stage = kRelease;
 	}
 	bool IsReleased() { return volEnv.stage == kRelease; }
+	double GetVolume() { return volEnv.Get(); }
 	double Get(double dt, std::array<double, kNumParameters> &p);
 
 private:
