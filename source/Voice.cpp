@@ -83,6 +83,7 @@ double Voice::GetOscillators(double dt, double lfoValue)
 double Voice::GetFilterCutoff(double lfoValue)
 {
 	auto cutoff = p[kFilterCutoff];
+	if (p[kFilterKeyTrack] != 0.0) cutoff += p[kFilterKeyTrack] * baseFrequency * pitchBendFactor;
 	if (p[kVolEnvCutoff] != 0.0) cutoff += volEnv.Get() * p[kVolEnvCutoff];
 	if (p[kModEnvCutoff] != 0.0) cutoff += modEnv.Get() * p[kModEnvCutoff];
 	if (p[kLfoCutoff] != 0.0)

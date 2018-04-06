@@ -72,6 +72,7 @@ private:
 	std::array<double, kNumParameters> &p;
 	int note = 69;
 	double baseFrequency = 440.0;
+	double pitchBendFactor = 1.0;
 	Envelope volEnv;
 	Envelope modEnv;
 	Envelope lfoEnv;
