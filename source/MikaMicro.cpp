@@ -8,6 +8,10 @@ void MikaMicro::InitParameters()
 	GetParam(kOsc1Coarse)->InitInt("Oscillator 1 coarse", 0, -24, 24);
 	GetParam(kOsc1Fine)->InitDouble("Oscillator 1 fine", 0.0, -1.0, 1.0, .01, "semitones");
 	GetParam(kOsc1Split)->InitDouble("Oscillator 1 split", 0.0, -.5, .5, .01, "semitones");
+	GetParam(kOsc2Coarse)->InitInt("Oscillator 2 coarse", 0, -24, 24);
+	GetParam(kOsc2Fine)->InitDouble("Oscillator 2 fine", 0.0, -1.0, 1.0, .01, "semitones");
+	GetParam(kOsc2Split)->InitDouble("Oscillator 2 split", 0.0, -.5, .5, .01, "semitones");
+	GetParam(kOscMix)->InitDouble("Oscillator mix", 0.0, 0.0, 1.0, .01);
 
 	GetParam(kVolEnvA)->InitDouble("Volume envelope attack", 1000.0, 0.1, 1000.0, .01);
 	GetParam(kVolEnvD)->InitDouble("Volume envelope decay", 1.0, 0.1, 1000.0, .01);
@@ -35,11 +39,11 @@ void MikaMicro::InitGraphics()
 	pGraphics->AttachControl(new IKnobMultiControl(this, 54 * 4, 10 * 4, kOsc1Fine, &knobMiddle));
 	pGraphics->AttachControl(new IKnobMultiControl(this, 70 * 4, 10 * 4, kOsc1Split, &knobMiddle));
 	//pGraphics->AttachControl(new ISwitchControl(this, 22 * 4, 26 * 4, kOsc2Wave, &waveformSwitch));
-	//pGraphics->AttachControl(new IKnobMultiControl(this, 38 * 4, 26 * 4, kOsc2Coarse, &knobMiddle));
-	//pGraphics->AttachControl(new IKnobMultiControl(this, 54 * 4, 26 * 4, kOsc2Fine, &knobMiddle));
-	//pGraphics->AttachControl(new IKnobMultiControl(this, 70 * 4, 26 * 4, kOsc2Split, &knobMiddle));
+	pGraphics->AttachControl(new IKnobMultiControl(this, 38 * 4, 26 * 4, kOsc2Coarse, &knobMiddle));
+	pGraphics->AttachControl(new IKnobMultiControl(this, 54 * 4, 26 * 4, kOsc2Fine, &knobMiddle));
+	pGraphics->AttachControl(new IKnobMultiControl(this, 70 * 4, 26 * 4, kOsc2Split, &knobMiddle));
 	pGraphics->AttachControl(new IBitmapControl(this, 91.5 * 4, 15 * 4, &sliderBg));
-	//pGraphics->AttachControl(new IFaderControl(this, 90.5 * 4, 16 * 4, 20 * 4, kOscMix, &slider));
+	pGraphics->AttachControl(new IFaderControl(this, 90.5 * 4, 16 * 4, 20 * 4, kOscMix, &slider));
 
 	// fm
 	//pGraphics->AttachControl(new ISwitchControl(this, 22 * 4, 42 * 4, kFmMode, &fmModeSwitch));
@@ -163,6 +167,13 @@ void MikaMicro::OnParamChange(int paramIdx)
 		break;
 	case kOsc1Split:
 		for (auto &voice : voices) voice.SetOsc1Split(parameters[kOsc1Split]);
+		break;
+	case kOsc2Coarse:
+	case kOsc2Fine:
+		for (auto &voice : voices) voice.SetOsc2Pitch(parameters[kOsc2Coarse] + parameters[kOsc2Fine]);
+		break;
+	case kOsc2Split:
+		for (auto &voice : voices) voice.SetOsc2Split(parameters[kOsc2Split]);
 		break;
 	}
 }
