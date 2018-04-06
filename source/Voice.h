@@ -17,6 +17,11 @@ public:
 	{
 		volEnv.stage = kAttack;
 	}
+	void Release()
+	{
+		volEnv.stage = kRelease;
+	}
+	bool IsReleased() { return volEnv.stage == kRelease; }
 	double Get(double dt, std::array<double, kNumParameters> &p);
 
 private:
@@ -24,6 +29,5 @@ private:
 	double baseFrequency = 440.0;
 	Envelope volEnv;
 	Oscillator osc;
-
 };
 

@@ -15,7 +15,7 @@ public:
 	void Update(double dt, double a, double d, double s, double r);
 	double Get() { return value; }
 
-	EEnvelopeStage stage = kAttack;
+	EEnvelopeStage stage = kRelease;
 
 private:
 	double value = 0.0;

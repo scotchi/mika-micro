@@ -3,6 +3,7 @@
 
 #include <array>
 #include "IPlug_include_in_plug_hdr.h"
+#include "IMidiQueue.h"
 #include "Parameters.h"
 #include "Voice.h"
 
@@ -13,13 +14,16 @@ public:
 
 	void Reset();
 	void OnParamChange(int paramIdx);
+	void ProcessMidiMsg(IMidiMsg *message) { midiQueue.Add(message); }
 	void ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames);
 
 private:
 	void InitParameters();
 	void InitGraphics();
+	void FlushMidi(int sample);
 
 	std::array<double, kNumParameters> parameters;
+	IMidiQueue midiQueue;
 	double dt = 0.0;
 	Voice voice;
 };

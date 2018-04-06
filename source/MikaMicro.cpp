@@ -29,15 +29,34 @@ MikaMicro::MikaMicro(IPlugInstanceInfo instanceInfo)
 	InitParameters();
 	InitGraphics();
 	MakeDefaultPreset("-", 1);
+}
 
-	voice.SetNote(69);
-	voice.Start();
+void MikaMicro::FlushMidi(int sample)
+{
+	while (!midiQueue.Empty())
+	{
+		auto *message = midiQueue.Peek();
+		if (message->mOffset > sample) break;
+
+		if (message->StatusMsg() == IMidiMsg::kNoteOff || (message->StatusMsg() == IMidiMsg::kNoteOn && message->Velocity() == 0))
+		{
+			voice.Release();
+		}
+		else if (message->StatusMsg() == IMidiMsg::kNoteOn)
+		{
+			voice.SetNote(message->NoteNumber());
+			voice.Start();
+		}
+
+		midiQueue.Remove();
+	}
 }
 
 void MikaMicro::ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames)
 {
 	for (int s = 0; s < nFrames; s++)
 	{
+		FlushMidi(s);
 		auto out = voice.Get(dt, parameters) * .25;
 		outputs[0][s] = outputs[1][s] = out;
 	}
