@@ -34,7 +34,7 @@ void Oscillator::UpdateWaveformMix(double dt)
 {
 	for (int i = 0; i < kNumWaveforms; i++)
 	{
-		if (waveformMix[i] != (int)waveform == i ? 1.0 : 0.0)
+		if (waveformMix[i] != ((int)waveform == i ? 1.0 : 0.0))
 		{
 			waveformMix[i] = lerp(waveformMix[i], (int)waveform == i ? 1.1 : -.1, 100.0 * dt);
 			waveformMix[i] = waveformMix[i] > 1.0 ? 1.0 : waveformMix[i] < 0.0 ? 0.0 : waveformMix[i];
