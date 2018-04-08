@@ -65,6 +65,7 @@ public:
 	double Get(double dt, double lfoValue, double driftValue);
 
 private:
+	double GetFmAmount(double lfoValue);
 	double GetOscillators(double dt, double lfoValue, double driftValue);
 	double GetFilterCutoff(double lfoValue, double driftValue);
 

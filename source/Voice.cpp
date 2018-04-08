@@ -21,6 +21,15 @@ void Voice::Start()
 	lfoEnv.stage = kAttack;
 }
 
+double Voice::GetFmAmount(double lfoValue)
+{
+	auto fmAmount = p[kFmCoarse] + p[kFmFine];
+	if (p[kVolEnvFm] != 0.0) fmAmount += volEnv.Get(p[kVolEnvV]) * p[kVolEnvFm];
+	if (p[kModEnvFm] != 0.0) fmAmount += modEnv.Get(p[kModEnvV]) * p[kModEnvFm];
+	if (p[kLfoFm] != 0.0) fmAmount += lfoValue * p[kLfoFm];
+	return fmAmount;
+}
+
 double Voice::GetOscillators(double dt, double lfoValue, double driftValue)
 {
 	// oscillator frequencies
@@ -39,12 +48,8 @@ double Voice::GetOscillators(double dt, double lfoValue, double driftValue)
 	auto fmFactor = 1.0;
 	if (p[kFmMode] != 0)
 	{
-		oscFm.Update(dt, osc1Frequency);
-		auto fmAmount = p[kFmCoarse] + p[kFmFine];
-		if (p[kVolEnvFm] != 0.0) fmAmount += volEnv.Get(p[kVolEnvV]) * p[kVolEnvFm];
-		if (p[kModEnvFm] != 0.0) fmAmount += modEnv.Get(p[kModEnvV]) * p[kModEnvFm];
-		if (p[kLfoFm] != 0.0) fmAmount += lfoValue * p[kLfoFm];
-		fmFactor = pitchFactor(oscFm.Get() * fmAmount);
+		auto fmAmount = GetFmAmount(lfoValue);
+		fmFactor = pitchFactor(oscFm.Next(dt, osc1Frequency) * fmAmount);
 		if (p[kFmMode] == 1) osc1Frequency *= fmFactor;
 		if (p[kFmMode] == 2) osc2Frequency *= fmFactor;
 	}
@@ -53,26 +58,18 @@ double Voice::GetOscillators(double dt, double lfoValue, double driftValue)
 	auto osc1Out = 0.0;
 	if (p[kOscMix] < 1.0)
 	{
-		osc1a.Update(dt, osc1Frequency * osc1SplitFactorA);
-		osc1Out += osc1a.Get();
+		osc1Out += osc1a.Next(dt, osc1Frequency * osc1SplitFactorA);
 		if (osc1bMix > 0.0)
-		{
-			osc1b.Update(dt, osc1Frequency * osc1SplitFactorB);
-			osc1Out += osc1bMix * osc1b.Get();
-		}
+			osc1Out += osc1bMix * osc1b.Next(dt, osc1Frequency * osc1SplitFactorB);
 	}
 
 	// oscillator 2
 	auto osc2Out = 0.0;
 	if (p[kOscMix] > 0.0)
 	{
-		osc2a.Update(dt, osc2Frequency * osc2SplitFactorA);
-		osc2Out += osc2a.Get();
+		osc2Out += osc2a.Next(dt, osc2Frequency * osc2SplitFactorA);
 		if (osc2bMix > 0.0)
-		{
-			osc2b.Update(dt, osc2Frequency * osc2SplitFactorB);
-			osc2Out += osc2bMix * osc2b.Get();
-		}
+			osc2Out += osc2bMix * osc2b.Next(dt, osc2Frequency * osc2SplitFactorB);
 	}
 
 	// mix

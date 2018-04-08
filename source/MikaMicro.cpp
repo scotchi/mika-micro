@@ -260,8 +260,7 @@ double MikaMicro::GetDriftValue()
 
 double MikaMicro::GetVoices()
 {
-	lfo.Update(dt, parameters[kLfoFrequency]);
-	auto lfoValue = lfo.Get();
+	auto lfoValue = lfo.Next(dt, parameters[kLfoFrequency]);
 	auto driftValue = GetDriftValue();
 	auto out = 0.0;
 	for (auto &voice : voices) out += voice.Get(dt, lfoValue, driftValue);

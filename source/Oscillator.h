@@ -27,13 +27,13 @@ public:
 		for (int i = 0; i < kNumWaveforms; i++)
 			waveformMix[i] = (int)waveform == i ? 1.0 : 0.0;
 	}
-	void Update(double dt, double frequency);
-	double Get();
+	double Next(double dt, double frequency);
 
 private:
 	double Blep(double phase);
-
 	double GeneratePulse(double width);
+	void UpdatePhase(double dt, double frequency);
+	void UpdateWaveformMix(double dt);
 
 	EWaveforms waveform;
 	std::array<double, kNumWaveforms> waveformMix;
