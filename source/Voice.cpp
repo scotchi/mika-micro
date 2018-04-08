@@ -39,10 +39,16 @@ double Voice::GetOscillators(double dt, double lfoValue, double driftValue)
 	if (p[kLfoAmount] != 0.0) osc2Frequency *= 1 + abs(p[kLfoAmount]) * lfoValue;
 
 	// oscillator split smoothing
-	osc1bMix = lerp(osc1bMix, (p[kOsc1Split] != 0.0 && p[kOsc1Wave] != kNoise ? 1.1 : -.1), 100.0 * dt);
-	osc1bMix = osc1bMix > 1.0 ? 1.0 : osc1bMix < 0.0 ? 0.0 : osc1bMix;
-	osc2bMix = lerp(osc2bMix, (p[kOsc2Split] != 0.0 && p[kOsc2Wave] != kNoise ? 1.1 : -.1), 100.0 * dt);
-	osc2bMix = osc2bMix > 1.0 ? 1.0 : osc2bMix < 0.0 ? 0.0 : osc2bMix;
+	if (osc1bMix != (p[kOsc1Split] != 0.0 && p[kOsc1Wave] != kNoise ? 1.0 : 0.0))
+	{
+		osc1bMix = lerp(osc1bMix, (p[kOsc1Split] != 0.0 && p[kOsc1Wave] != kNoise ? 1.1 : -.1), 100.0 * dt);
+		osc1bMix = osc1bMix > 1.0 ? 1.0 : osc1bMix < 0.0 ? 0.0 : osc1bMix;
+	}
+	if (osc2bMix != (p[kOsc2Split] != 0.0 && p[kOsc2Wave] != kNoise ? 1.0 : 0.0))
+	{
+		osc2bMix = lerp(osc2bMix, (p[kOsc2Split] != 0.0 && p[kOsc2Wave] != kNoise ? 1.1 : -.1), 100.0 * dt);
+		osc2bMix = osc2bMix > 1.0 ? 1.0 : osc2bMix < 0.0 ? 0.0 : osc2bMix;
+	}
 
 	// fm
 	auto fmFactor = 1.0;
@@ -107,7 +113,8 @@ double Voice::Get(double dt, double lfoValue, double driftValue)
 	lfoValue *= lfoEnv.Get(0.0);
 
 	// pitch glide
-	baseFrequency = lerp(baseFrequency, targetFrequency, p[kGlideSpeed] * dt);
+	if (baseFrequency != targetFrequency)
+		baseFrequency = lerp(baseFrequency, targetFrequency, p[kGlideSpeed] * dt);
 
 	// get oscillators
 	auto out = GetOscillators(dt, lfoValue, driftValue) * volEnv.Get(p[kVolEnvV]);
