@@ -27,8 +27,8 @@ public:
 	void SetOsc1Pitch(double p) { osc1Pitch = pitchFactor(p); }
 	void SetOsc1Split(double s)
 	{
-		osc1SplitFactorA = pitchFactor(s);
-		osc1SplitFactorB = pitchFactor(-s);
+		osc1SplitFactorA = 1.0 + s;
+		osc1SplitFactorB = 1.0 / osc1SplitFactorA;
 	}
 	void SetOsc2Wave(EWaveforms w)
 	{
@@ -38,8 +38,8 @@ public:
 	void SetOsc2Pitch(double p) { osc2Pitch = pitchFactor(p); }
 	void SetOsc2Split(double s)
 	{
-		osc2SplitFactorA = pitchFactor(s);
-		osc2SplitFactorB = pitchFactor(-s);
+		osc2SplitFactorA = 1.0 + s;
+		osc2SplitFactorB = 1.0 / osc2SplitFactorA;
 	}
 	void SetFilterEnabled(bool e) { filter.SetEnabled(e); }
 
