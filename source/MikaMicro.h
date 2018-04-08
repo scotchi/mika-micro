@@ -26,7 +26,6 @@ private:
 	void InitParameters();
 	void InitPresets();
 	void InitGraphics();
-	void InitVoices();
 	void FlushMidi(int sample);
 	double GetDriftValue();
 	double GetVoices();
@@ -42,7 +41,15 @@ private:
 	std::uniform_real_distribution<> dist;
 	double driftVelocity = 0.0;
 	double driftPhase = 0.0;
-	std::vector<Voice> voices;
+	std::array<Voice, 8> voices{
+		Voice(parameters),
+		Voice(parameters),
+		Voice(parameters),
+		Voice(parameters),
+		Voice(parameters),
+		Voice(parameters),
+		Voice(parameters), 
+		Voice(parameters) };
 };
 
 #endif

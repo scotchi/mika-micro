@@ -144,11 +144,6 @@ void MikaMicro::InitGraphics()
 	AttachGraphics(pGraphics);
 }
 
-void MikaMicro::InitVoices()
-{
-	for (int i = 0; i < 8; i++) voices.push_back(Voice(parameters));
-}
-
 MikaMicro::MikaMicro(IPlugInstanceInfo instanceInfo)
 	: IPLUG_CTOR(kNumParameters, 128, instanceInfo),
 	lfo(kSine),
@@ -160,7 +155,6 @@ MikaMicro::MikaMicro(IPlugInstanceInfo instanceInfo)
 	InitParameters();
 	InitGraphics();
 	InitPresets();
-	InitVoices();
 }
 
 void MikaMicro::FlushMidi(int sample)
