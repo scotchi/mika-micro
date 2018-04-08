@@ -9,8 +9,8 @@ void Voice::Start()
 		osc1b.Reset(p[kOsc1Split] < 0.0 ? .33 : 0.0);
 		osc2a.Reset();
 		osc2b.Reset(p[kOsc2Split] < 0.0 ? .33 : 0.0);
-		osc1bMix = p[kOsc1Split] != 0.0 ? 1.0 : 0.0;
-		osc2bMix = p[kOsc2Split] != 0.0 ? 1.0 : 0.0;
+		osc1bMix = p[kOsc1Split] != 0.0 && p[kOsc1Wave] != kNoise ? 1.0 : 0.0;
+		osc2bMix = p[kOsc2Split] != 0.0 && p[kOsc2Wave] != kNoise ? 1.0 : 0.0;
 		volEnv.Reset();
 		modEnv.Reset();
 		lfoEnv.Reset();
@@ -39,9 +39,9 @@ double Voice::GetOscillators(double dt, double lfoValue, double driftValue)
 	if (p[kLfoAmount] != 0.0) osc2Frequency *= 1 + abs(p[kLfoAmount]) * lfoValue;
 
 	// oscillator split smoothing
-	osc1bMix = lerp(osc1bMix, (p[kOsc1Split] != 0.0 ? 1.1 : -.1), 100.0 * dt);
+	osc1bMix = lerp(osc1bMix, (p[kOsc1Split] != 0.0 && p[kOsc1Wave] != kNoise ? 1.1 : -.1), 100.0 * dt);
 	osc1bMix = osc1bMix > 1.0 ? 1.0 : osc1bMix < 0.0 ? 0.0 : osc1bMix;
-	osc2bMix = lerp(osc2bMix, (p[kOsc2Split] != 0.0 ? 1.1 : -.1), 100.0 * dt);
+	osc2bMix = lerp(osc2bMix, (p[kOsc2Split] != 0.0 && p[kOsc2Wave] != kNoise ? 1.1 : -.1), 100.0 * dt);
 	osc2bMix = osc2bMix > 1.0 ? 1.0 : osc2bMix < 0.0 ? 0.0 : osc2bMix;
 
 	// fm
