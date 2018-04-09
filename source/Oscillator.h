@@ -20,7 +20,11 @@ class Oscillator
 public:
 	Oscillator(EWaveforms w) : waveform(w) {}
 
-	void SetWaveform(EWaveforms w) { waveform = w; }
+	void SetWaveform(EWaveforms w)
+	{
+		previousWaveform = waveform;
+		waveform = w;
+	}
 	void Reset(double p = 0.0)
 	{
 		phase = p;
@@ -35,7 +39,8 @@ private:
 	void UpdatePhase(double dt, double frequency);
 	void UpdateWaveformMix(double dt);
 
-	EWaveforms waveform;
+	EWaveforms waveform = kSaw;
+	EWaveforms previousWaveform = kSaw;
 	std::array<double, kNumWaveforms> waveformMix;
 	double phase = 0.0;
 	double phaseIncrement = 0.0;

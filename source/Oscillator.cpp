@@ -32,13 +32,15 @@ void Oscillator::UpdatePhase(double dt, double frequency)
 
 void Oscillator::UpdateWaveformMix(double dt)
 {
-	for (int i = 0; i < kNumWaveforms; i++)
+	if (previousWaveform != waveform && waveformMix[previousWaveform] > 0.0)
 	{
-		if (waveformMix[i] != ((int)waveform == i ? 1.0 : 0.0))
-		{
-			waveformMix[i] = lerp(waveformMix[i], (int)waveform == i ? 1.1 : -.1, 100.0 * dt);
-			waveformMix[i] = waveformMix[i] > 1.0 ? 1.0 : waveformMix[i] < 0.0 ? 0.0 : waveformMix[i];
-		}
+		waveformMix[previousWaveform] = lerp(waveformMix[previousWaveform], -.1, 100.0 * dt);
+		waveformMix[previousWaveform] = waveformMix[previousWaveform] < 0.0 ? 0.0 : waveformMix[previousWaveform];
+	}
+	if (waveformMix[waveform] < 1.0)
+	{
+		waveformMix[waveform] = lerp(waveformMix[waveform], 1.1, 100.0 * dt);
+		waveformMix[waveform] = waveformMix[waveform] > 1.0 ? 1.0 : waveformMix[waveform];
 	}
 }
 
@@ -46,6 +48,7 @@ double Oscillator::Next(double dt, double frequency)
 {
 	UpdatePhase(dt, frequency);
 	UpdateWaveformMix(dt);
+
 	auto out = 0.0;
 	if (waveformMix[kSine] > 0.0)
 		out += waveformMix[kSine] * sin(phase * twoPi);
