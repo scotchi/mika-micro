@@ -93,13 +93,8 @@ void Voice::SetParameter(EParameters parameter, double value)
 		modEnvVelocitySensitivity = value;
 		break;
 	case kLfoAmount:
-		if (value < 0.0)
-		{
-			lfoOsc1 = -value;
-			lfoOsc2 = -value;
-		}
-		else if (value > 0.0)
-			lfoOsc2 = value;
+		lfoOsc1 = value < 0.0 ? -value : 0.0;
+		lfoOsc2 = abs(value);
 		break;
 	case kLfoDelay:
 		lfoDelay = value;
