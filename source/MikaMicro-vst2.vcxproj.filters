@@ -10,7 +10,6 @@
     <ClCompile Include="Oscillator.cpp" />
     <ClCompile Include="Presets.cpp" />
     <ClCompile Include="Voice.cpp" />
-    <ClCompile Include="SmoothSwitch.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MikaMicro.h" />
@@ -25,7 +24,6 @@
     <ClInclude Include="PresetMenu.h" />
     <ClInclude Include="Util.h" />
     <ClInclude Include="Voice.h" />
-    <ClInclude Include="SmoothSwitch.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="MikaMicro.rc" />

@@ -4,7 +4,6 @@
 #include "Filter.h"
 #include "Oscillator.h"
 #include "Parameters.h"
-#include "SmoothSwitch.h"
 #include "Util.h"
 
 enum EVoiceModes
