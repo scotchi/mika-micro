@@ -46,9 +46,13 @@ private:
 	int osc1Coarse = 0;
 	double osc1Fine = 0.0;
 	double osc1PitchFactor = 1.0;
+	double osc1SplitFactorA = 1.0;
+	double osc1SplitFactorB = 1.0;
 	int osc2Coarse = 0;
 	double osc2Fine = 0.0;
 	double osc2PitchFactor = 1.0;
+	double osc2SplitFactorA = 1.0;
+	double osc2SplitFactorB = 1.0;
 	double oscMix = 0.0;
 };
 

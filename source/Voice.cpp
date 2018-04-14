@@ -17,6 +17,8 @@ void Voice::SetParameter(EParameters parameter, double value)
 		osc1PitchFactor = pitchFactor(osc1Coarse + osc1Fine);
 		break;
 	case kOsc1Split:
+		osc1SplitFactorA = 1.0 + value;
+		osc1SplitFactorB = 1.0 / osc1SplitFactorA;
 		break;
 	case kOsc2Wave:
 		osc2a.SetWaveform((EWaveforms)(int)value);
@@ -31,6 +33,8 @@ void Voice::SetParameter(EParameters parameter, double value)
 		osc2PitchFactor = pitchFactor(osc2Coarse + osc2Fine);
 		break;
 	case kOsc2Split:
+		osc2SplitFactorA = 1.0 + value;
+		osc2SplitFactorB = 1.0 / osc2SplitFactorA;
 		break;
 	case kOscMix:
 		oscMix = value;
@@ -75,8 +79,6 @@ void Voice::SetParameter(EParameters parameter, double value)
 		break;
 	case kLfoAmount:
 		break;
-	case kLfoFrequency:
-		break;
 	case kLfoDelay:
 		break;
 	case kVolEnvFm:
@@ -94,8 +96,6 @@ void Voice::SetParameter(EParameters parameter, double value)
 	case kVoiceMode:
 		break;
 	case kGlideSpeed:
-		break;
-	case kMasterVolume:
 		break;
 	}
 }
@@ -119,21 +119,34 @@ double Voice::Next()
 	auto volEnvValue = volEnv.Get();
 	if (volEnvValue == 0.0) return 0.0;
 
+	auto osc1Frequency = baseFrequency * osc1PitchFactor;
+	auto osc2Frequency = baseFrequency * osc2PitchFactor;
+
 	auto out = 0.0;
 
 	if (oscMix < 1.0)
 	{
 		auto osc1Out = 0.0;
-		osc1a.SetFrequency(baseFrequency * osc1PitchFactor);
+		osc1a.SetFrequency(osc1Frequency * osc1SplitFactorA);
 		osc1Out += osc1a.Next();
+		if (osc1SplitFactorA != 1.0)
+		{
+			osc1b.SetFrequency(osc1Frequency * osc1SplitFactorB);
+			osc1Out += osc1b.Next();
+		}
 		out += osc1Out * sqrt(1.0 - oscMix);
 	}
 
 	if (oscMix > 0.0)
 	{
 		auto osc2Out = 0.0;
-		osc2a.SetFrequency(baseFrequency * osc2PitchFactor);
+		osc2a.SetFrequency(osc2Frequency * osc2SplitFactorA);
 		osc2Out += osc2a.Next();
+		if (osc2SplitFactorA != 1.0)
+		{
+			osc2b.SetFrequency(osc2Frequency * osc2SplitFactorB);
+			osc2Out += osc2b.Next();
+		}
 		out += osc2Out * sqrt(oscMix);
 	}
 

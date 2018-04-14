@@ -212,6 +212,7 @@ void MikaMicro::OnParamChange(int paramIdx)
 	switch (paramIdx)
 	{
 	// reversed parameters
+	case kOscMix:
 	case kVolEnvA:
 	case kVolEnvD:
 	case kVolEnvR:
