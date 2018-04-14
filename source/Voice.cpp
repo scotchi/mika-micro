@@ -36,91 +36,37 @@ void Voice::SetParameter(EParameters parameter, double value)
 		osc2SplitFactorA = 1.0 + value;
 		osc2SplitFactorB = 1.0 / osc2SplitFactorA;
 		break;
-	case kOscMix:
-		oscMix = value;
-		break;
-	case kFmMode:
-		fmMode = value;
-		break;
-	case kFmCoarse:
-		fmCoarse = value;
-		break;
-	case kFmFine:
-		fmFine = value;
-		break;
-	case kFilterEnabled:
-		filterEnabled = (bool)value;
-		break;
-	case kFilterCutoff:
-		filterCutoff = value;
-		break;
-	case kFilterResonance:
-		filter.SetResonance(value);
-		break;
-	case kFilterKeyTrack:
-		filterKeyTracking = value;
-		break;
-	case kVolEnvA:
-		volEnv.SetAttack(value);
-		break;
-	case kVolEnvD:
-		volEnv.SetDecay(value);
-		break;
-	case kVolEnvS:
-		volEnv.SetSustain(value);
-		break;
-	case kVolEnvR:
-		volEnv.SetRelease(value);
-		break;
-	case kVolEnvV:
-		volEnvVelocitySensitivity = value;
-		break;
-	case kModEnvA:
-		modEnv.SetAttack(value);
-		break;
-	case kModEnvD:
-		modEnv.SetDecay(value);
-		break;
-	case kModEnvS:
-		modEnv.SetSustain(value);
-		break;
-	case kModEnvR:
-		modEnv.SetRelease(value);
-		break;
-	case kModEnvV:
-		modEnvVelocitySensitivity = value;
-		break;
+	case kOscMix: oscMix = value; break;
+	case kFmMode: fmMode = value; break;
+	case kFmCoarse: fmCoarse = value; break;
+	case kFmFine: fmFine = value; break;
+	case kFilterEnabled: filterEnabled = (bool)value; break;
+	case kFilterCutoff: filterCutoff = value; break;
+	case kFilterResonance: filter.SetResonance(value); break;
+	case kFilterKeyTrack: filterKeyTracking = value; break;
+	case kVolEnvA: volEnv.SetAttack(value); break;
+	case kVolEnvD: volEnv.SetDecay(value); break;
+	case kVolEnvS: volEnv.SetSustain(value); break;
+	case kVolEnvR: volEnv.SetRelease(value); break;
+	case kVolEnvV: volEnvVelocitySensitivity = value; break;
+	case kModEnvA: modEnv.SetAttack(value); break;
+	case kModEnvD: modEnv.SetDecay(value); break;
+	case kModEnvS: modEnv.SetSustain(value); break;
+	case kModEnvR: modEnv.SetRelease(value); break;
+	case kModEnvV: modEnvVelocitySensitivity = value; break;
 	case kLfoAmount:
 		lfoOsc1 = value < 0.0 ? -value : 0.0;
 		lfoOsc2 = abs(value);
 		break;
-	case kLfoDelay:
-		lfoDelay = value;
-		break;
-	case kVolEnvFm:
-		volEnvFm = value;
-		break;
-	case kVolEnvCutoff:
-		volEnvCutoff = value;
-		break;
-	case kModEnvFm:
-		modEnvFm = value;
-		break;
-	case kModEnvCutoff:
-		modEnvCutoff = value;
-		break;
-	case kLfoFm:
-		lfoFm = value;
-		break;
-	case kLfoCutoff:
-		lfoCutoff = copysign((value * .000125) * (value * .000125) * 8000.0, value);
-		break;
-	case kVoiceMode:
-		voiceMode = (EVoiceModes)(int)value;
-		break;
-	case kGlideSpeed:
-		glideSpeed = value;
-		break;
+	case kLfoDelay: lfoDelay = value; break;
+	case kVolEnvFm: volEnvFm = value; break;
+	case kVolEnvCutoff: volEnvCutoff = value; break;
+	case kModEnvFm: modEnvFm = value; break;
+	case kModEnvCutoff: modEnvCutoff = value; break;
+	case kLfoFm: lfoFm = value; break;
+	case kLfoCutoff: lfoCutoff = copysign((value * .000125) * (value * .000125) * 8000.0, value); break;
+	case kVoiceMode: voiceMode = (EVoiceModes)(int)value; break;
+	case kGlideSpeed: glideSpeed = value; break;
 	}
 }
 
