@@ -40,10 +40,13 @@ void Voice::SetParameter(EParameters parameter, double value)
 		oscMix = value;
 		break;
 	case kFmMode:
+		fmMode = value;
 		break;
 	case kFmCoarse:
+		fmCoarse = value;
 		break;
 	case kFmFine:
+		fmFine = value;
 		break;
 	case kFilterEnabled:
 		break;
@@ -123,6 +126,26 @@ double Voice::Next()
 	auto osc2Frequency = baseFrequency * osc2PitchFactor;
 
 	auto out = 0.0;
+
+	switch (fmMode)
+	{
+	case 1:
+	case 2:
+	{
+		auto fmAmount = fmCoarse + fmFine;
+		oscFm.SetFrequency(osc1Frequency);
+		auto fmValue = pitchFactor(oscFm.Next() * fmAmount);
+		switch (fmMode)
+		{
+		case 1:
+			osc1Frequency *= fmValue;
+			break;
+		case 2:
+			osc2Frequency *= fmValue;
+			break;
+		}
+	}
+	}
 
 	if (oscMix < 1.0)
 	{
