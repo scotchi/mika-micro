@@ -21,6 +21,7 @@ public:
 	void SetWaveform(EWaveforms w) { waveform = w; }
 	void SetFrequency(double f) { frequency = f; }
 	double Next();
+	void Reset(double p = 0.0) { phase = p; }
 
 private:
 	double Blep(double phase, double phaseIncrement);

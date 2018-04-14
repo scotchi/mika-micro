@@ -25,7 +25,7 @@ public:
 		baseFrequency = pitchToFrequency(note);
 	}
 	int GetNote() { return note; }
-	void Start() { volEnv.stage = kAttack; }
+	void Start();
 	void Release() { volEnv.stage = kRelease; }
 	double Next();
 	double GetVolume() { return volEnv.Get(); }
@@ -46,5 +46,9 @@ private:
 	int osc1Coarse = 0;
 	double osc1Fine = 0.0;
 	double osc1PitchFactor = 1.0;
+	int osc2Coarse = 0;
+	double osc2Fine = 0.0;
+	double osc2PitchFactor = 1.0;
+	double oscMix = 0.0;
 };
 
