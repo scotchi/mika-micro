@@ -34,7 +34,7 @@ public:
 		volEnv.stage = kRelease;
 		modEnv.stage = kRelease;
 	}
-	double Next(double lfoValue);
+	double Next(double lfoValue, double driftValue);
 	double GetVolume() { return volEnv.Get(); }
 	bool IsReleased() { return volEnv.stage == kRelease; }
 

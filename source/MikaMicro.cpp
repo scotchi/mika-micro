@@ -187,14 +187,23 @@ void MikaMicro::FlushMidi(int sample)
 	}
 }
 
+double MikaMicro::GetDriftValue()
+{
+	driftVelocity += random() * 10000.0 * dt;
+	driftVelocity -= driftVelocity * 2.0 * dt;
+	driftPhase += driftVelocity * dt;
+	return .001 * sin(driftPhase);
+}
+
 void MikaMicro::ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames)
 {
 	for (int sample = 0; sample < nFrames; sample++)
 	{
 		FlushMidi(sample);
 		auto lfoValue = lfo.Next();
+		auto driftValue = GetDriftValue();
 		auto out = 0.0;
-		for (auto &voice : voices) out += voice.Next(lfoValue);
+		for (auto &voice : voices) out += voice.Next(lfoValue, driftValue);
 		outputs[0][sample] = outputs[1][sample] = out * .25;
 	}
 }
@@ -203,6 +212,8 @@ void MikaMicro::Reset()
 {
 	TRACE;
 	IMutexLock lock(this);
+
+	dt = 1.0 / GetSampleRate();
 	lfo.SetSampleRate(GetSampleRate());
 	for (auto &voice : voices) voice.SetSampleRate(GetSampleRate());
 }

@@ -142,7 +142,7 @@ void Voice::Start()
 	modEnv.stage = kAttack;
 }
 
-double Voice::Next(double lfoValue)
+double Voice::Next(double lfoValue, double driftValue)
 {
 	// skip processing if voice is silent
 	volEnv.Update();
@@ -158,9 +158,9 @@ double Voice::Next(double lfoValue)
 	lfoValue *= lfoDelayMultiplier;
 
 	// oscillator base frequencies
-	auto osc1Frequency = baseFrequency * osc1PitchFactor;
+	auto osc1Frequency = baseFrequency * osc1PitchFactor * pitchBendFactor * (1.0 + driftValue);
 	osc1Frequency *= 1.0 + lfoOsc1 * lfoValue;
-	auto osc2Frequency = baseFrequency * osc2PitchFactor;
+	auto osc2Frequency = baseFrequency * osc2PitchFactor * pitchBendFactor * (1.0 + driftValue);
 	osc2Frequency *= 1.0 + lfoOsc2 * lfoValue;
 
 	// fm
@@ -224,7 +224,7 @@ double Voice::Next(double lfoValue)
 	switch (filterEnabled)
 	{
 	case true:
-		auto cutoff = filterCutoff;
+		auto cutoff = filterCutoff * (1.0 + driftValue);
 		cutoff += filterKeyTracking * baseFrequency * pitchBendFactor;
 		cutoff += volEnvCutoff * volEnvValue;
 		cutoff += modEnvCutoff * modEnvValue;
