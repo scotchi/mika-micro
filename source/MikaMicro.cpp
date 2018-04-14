@@ -16,6 +16,8 @@ MikaMicro::MikaMicro(IPlugInstanceInfo instanceInfo)
 	AttachGraphics(pGraphics);
 
 	MakeDefaultPreset("-", 128);
+
+	osc.SetWaveform(kSaw);
 }
 
 MikaMicro::~MikaMicro() {}
@@ -24,7 +26,8 @@ void MikaMicro::ProcessDoubleReplacing(double** inputs, double** outputs, int nF
 {
 	for (int s = 0; s < nFrames; s++)
 	{
-		outputs[0][s] = outputs[1][s] = 0.0;
+		auto out = osc.Next(440.0) * .25;
+		outputs[0][s] = outputs[1][s] = out;
 	}
 }
 
@@ -32,6 +35,7 @@ void MikaMicro::Reset()
 {
 	TRACE;
 	IMutexLock lock(this);
+	osc.SetSampleRate(GetSampleRate());
 }
 
 void MikaMicro::OnParamChange(int paramIdx)
