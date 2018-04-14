@@ -75,12 +75,16 @@ void Voice::SetParameter(EParameters parameter, double value)
 	case kVolEnvV:
 		break;
 	case kModEnvA:
+		modEnv.SetAttack(value);
 		break;
 	case kModEnvD:
+		modEnv.SetDecay(value);
 		break;
 	case kModEnvS:
+		modEnv.SetSustain(value);
 		break;
 	case kModEnvR:
+		modEnv.SetRelease(value);
 		break;
 	case kModEnvV:
 		break;
@@ -89,12 +93,16 @@ void Voice::SetParameter(EParameters parameter, double value)
 	case kLfoDelay:
 		break;
 	case kVolEnvFm:
+		volEnvFm = value;
 		break;
 	case kVolEnvCutoff:
+		volEnvCutoff = value;
 		break;
 	case kModEnvFm:
+		modEnvFm = value;
 		break;
 	case kModEnvCutoff:
+		modEnvCutoff = value;
 		break;
 	case kLfoFm:
 		break;
@@ -111,6 +119,7 @@ void Voice::Start()
 {
 	if (volEnv.Get() == 0.0)
 	{
+		modEnv.Reset();
 		oscFm.Reset();
 		osc1a.Reset();
 		osc1b.Reset();
@@ -119,6 +128,7 @@ void Voice::Start()
 		filter.Reset();
 	}
 	volEnv.stage = kAttack;
+	modEnv.stage = kAttack;
 }
 
 double Voice::Next()
@@ -127,6 +137,10 @@ double Voice::Next()
 	volEnv.Update();
 	auto volEnvValue = volEnv.Get();
 	if (volEnvValue == 0.0 && filter.IsSilent()) return 0.0;
+
+	// mod envelope
+	modEnv.Update();
+	auto modEnvValue = modEnv.Get();
 
 	// oscillator base frequencies
 	auto osc1Frequency = baseFrequency * osc1PitchFactor;
@@ -139,6 +153,8 @@ double Voice::Next()
 	case 2:
 	{
 		auto fmAmount = fmCoarse + fmFine;
+		fmAmount += volEnvFm * volEnvValue;
+		fmAmount += modEnvFm * modEnvValue;
 		oscFm.SetFrequency(osc1Frequency);
 		auto fmValue = pitchFactor(oscFm.Next() * fmAmount);
 		switch (fmMode)
@@ -190,6 +206,8 @@ double Voice::Next()
 	case true:
 		auto cutoff = filterCutoff;
 		cutoff += filterKeyTracking * baseFrequency * pitchBendFactor;
+		cutoff += volEnvCutoff * volEnvValue;
+		cutoff += modEnvCutoff * modEnvValue;
 		filter.SetCutoff(cutoff);
 		out = filter.Process(out);
 		break;

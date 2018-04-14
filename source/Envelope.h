@@ -15,7 +15,7 @@ public:
 	void SetDecay(double d) { decay = d; }
 	void SetSustain(double s) { sustain = s; }
 	void SetRelease(double r) { release = r; }
-
+	void Reset() { value = 0.0; }
 	void Update();
 	double Get() { return value; }
 

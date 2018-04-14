@@ -13,6 +13,7 @@ public:
 	{
 		dt = 1.0 / sr;
 		volEnv.SetSampleRate(sr);
+		modEnv.SetSampleRate(sr);
 		oscFm.SetSampleRate(sr);
 		osc1a.SetSampleRate(sr);
 		osc1b.SetSampleRate(sr);
@@ -28,13 +29,18 @@ public:
 	}
 	int GetNote() { return note; }
 	void Start();
-	void Release() { volEnv.stage = kRelease; }
+	void Release()
+	{
+		volEnv.stage = kRelease;
+		modEnv.stage = kRelease;
+	}
 	double Next();
 	double GetVolume() { return volEnv.Get(); }
 	bool IsReleased() { return volEnv.stage == kRelease; }
 
 private:
 	Envelope volEnv;
+	Envelope modEnv;
 	Oscillator oscFm;
 	Oscillator osc1a;
 	Oscillator osc1b;
@@ -64,5 +70,9 @@ private:
 	bool filterEnabled = false;
 	double filterCutoff = 8000.0;
 	double filterKeyTracking = 0.0;
+	double volEnvFm = 0.0;
+	double volEnvCutoff = 0.0;
+	double modEnvFm = 0.0;
+	double modEnvCutoff = 0.0;
 };
 
