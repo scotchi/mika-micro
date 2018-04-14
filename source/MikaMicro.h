@@ -28,6 +28,7 @@ private:
 
 	IGraphics* pGraphics;
 	IMidiQueue midiQueue;
+	Oscillator lfo;
 	std::array<Voice, 8> voices;
 };
 

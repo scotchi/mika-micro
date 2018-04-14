@@ -89,8 +89,16 @@ void Voice::SetParameter(EParameters parameter, double value)
 	case kModEnvV:
 		break;
 	case kLfoAmount:
+		if (value < 0.0)
+		{
+			lfoOsc1 = -value;
+			lfoOsc2 = -value;
+		}
+		else if (value > 0.0)
+			lfoOsc2 = value;
 		break;
 	case kLfoDelay:
+		lfoDelay = value;
 		break;
 	case kVolEnvFm:
 		volEnvFm = value;
@@ -105,8 +113,10 @@ void Voice::SetParameter(EParameters parameter, double value)
 		modEnvCutoff = value;
 		break;
 	case kLfoFm:
+		lfoFm = value;
 		break;
 	case kLfoCutoff:
+		lfoCutoff = copysign((value * .000125) * (value * .000125) * 8000.0, value);
 		break;
 	case kVoiceMode:
 		break;
@@ -126,12 +136,13 @@ void Voice::Start()
 		osc2a.Reset();
 		osc2b.Reset();
 		filter.Reset();
+		lfoDelayMultiplier = 0.0;
 	}
 	volEnv.stage = kAttack;
 	modEnv.stage = kAttack;
 }
 
-double Voice::Next()
+double Voice::Next(double lfoValue)
 {
 	// skip processing if voice is silent
 	volEnv.Update();
@@ -142,9 +153,15 @@ double Voice::Next()
 	modEnv.Update();
 	auto modEnvValue = modEnv.Get();
 
+	// lfo
+	lfoDelayMultiplier += (1.0 - lfoDelayMultiplier) * lfoDelay * dt;
+	lfoValue *= lfoDelayMultiplier;
+
 	// oscillator base frequencies
 	auto osc1Frequency = baseFrequency * osc1PitchFactor;
+	osc1Frequency *= 1.0 + lfoOsc1 * lfoValue;
 	auto osc2Frequency = baseFrequency * osc2PitchFactor;
+	osc2Frequency *= 1.0 + lfoOsc2 * lfoValue;
 
 	// fm
 	switch (fmMode)
@@ -155,6 +172,7 @@ double Voice::Next()
 		auto fmAmount = fmCoarse + fmFine;
 		fmAmount += volEnvFm * volEnvValue;
 		fmAmount += modEnvFm * modEnvValue;
+		fmAmount += lfoFm * lfoValue;
 		oscFm.SetFrequency(osc1Frequency);
 		auto fmValue = pitchFactor(oscFm.Next() * fmAmount);
 		switch (fmMode)
@@ -199,8 +217,10 @@ double Voice::Next()
 		out += osc2Out * sqrt(oscMix);
 	}
 
+	// apply volume envelope
 	out *= volEnv.Get();
 
+	// filter
 	switch (filterEnabled)
 	{
 	case true:
@@ -208,6 +228,7 @@ double Voice::Next()
 		cutoff += filterKeyTracking * baseFrequency * pitchBendFactor;
 		cutoff += volEnvCutoff * volEnvValue;
 		cutoff += modEnvCutoff * modEnvValue;
+		cutoff += lfoCutoff * lfoValue;
 		filter.SetCutoff(cutoff);
 		out = filter.Process(out);
 		break;

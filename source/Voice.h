@@ -34,7 +34,7 @@ public:
 		volEnv.stage = kRelease;
 		modEnv.stage = kRelease;
 	}
-	double Next();
+	double Next(double lfoValue);
 	double GetVolume() { return volEnv.Get(); }
 	bool IsReleased() { return volEnv.stage == kRelease; }
 
@@ -70,9 +70,15 @@ private:
 	bool filterEnabled = false;
 	double filterCutoff = 8000.0;
 	double filterKeyTracking = 0.0;
+	double lfoDelay = 0.0;
+	double lfoDelayMultiplier = 1.0;
 	double volEnvFm = 0.0;
 	double volEnvCutoff = 0.0;
 	double modEnvFm = 0.0;
 	double modEnvCutoff = 0.0;
+	double lfoOsc1 = 0.0;
+	double lfoOsc2 = 0.0;
+	double lfoFm = 0.0;
+	double lfoCutoff = 0.0;
 };
 

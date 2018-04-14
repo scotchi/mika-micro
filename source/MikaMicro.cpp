@@ -192,8 +192,9 @@ void MikaMicro::ProcessDoubleReplacing(double** inputs, double** outputs, int nF
 	for (int sample = 0; sample < nFrames; sample++)
 	{
 		FlushMidi(sample);
+		auto lfoValue = lfo.Next();
 		auto out = 0.0;
-		for (auto &voice : voices) out += voice.Next();
+		for (auto &voice : voices) out += voice.Next(lfoValue);
 		outputs[0][sample] = outputs[1][sample] = out * .25;
 	}
 }
@@ -202,6 +203,7 @@ void MikaMicro::Reset()
 {
 	TRACE;
 	IMutexLock lock(this);
+	lfo.SetSampleRate(GetSampleRate());
 	for (auto &voice : voices) voice.SetSampleRate(GetSampleRate());
 }
 
@@ -219,6 +221,7 @@ void MikaMicro::OnParamChange(int paramIdx)
 	case kModEnvA:
 	case kModEnvD:
 	case kModEnvR:
+	case kLfoDelay:
 		for (auto &voice : voices)
 			voice.SetParameter((EParameters)paramIdx, GetParam(paramIdx)->GetMin() + GetParam(paramIdx)->GetMax() - GetParam(paramIdx)->Value());
 		break;
@@ -229,4 +232,10 @@ void MikaMicro::OnParamChange(int paramIdx)
 		break;
 	}
 	
+	switch (paramIdx)
+	{
+	case kLfoFrequency:
+		lfo.SetFrequency(GetParam(paramIdx)->Value());
+		break;
+	}
 }
