@@ -83,7 +83,8 @@ private:
 	int fmMode = 0;
 	double fmCoarse = 0.0;
 	double fmFine = 0.0;
-	SmoothSwitch filterMix;
+	bool filterEnabled = false;
+	double filterMix = 0.0;
 	double filterCutoff = 8000.0;
 	double filterKeyTracking = 0.0;
 	double volEnvVelocitySensitivity = 0.0;

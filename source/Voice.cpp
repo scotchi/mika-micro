@@ -51,7 +51,7 @@ void Voice::SetParameter(EParameters parameter, double value)
 		fmFine = value;
 		break;
 	case kFilterEnabled:
-		filterMix.Switch((bool)value);
+		filterEnabled = (bool)value;
 		break;
 	case kFilterCutoff:
 		filterCutoff = value;
@@ -140,7 +140,7 @@ void Voice::Start()
 		lfoDelayMultiplier = 0.0;
 		osc1SplitMix.Reset();
 		osc2SplitMix.Reset();
-		filterMix.Reset();
+		filterMix = filterEnabled ? 1.0 : 0.0;
 	}
 	volEnv.stage = kAttack;
 	modEnv.stage = kAttack;
@@ -258,27 +258,16 @@ double Voice::Next(double lfoValue, double driftValue)
 	out *= volEnvValue;
 
 	// filter
-	filterMix.Update(dt);
-	switch (filterMix.GetStatus())
+	filterMix += ((filterEnabled ? 1.0 : 0.0) - filterMix) * 100.0 * dt;
+	if (filterMix > .01)
 	{
-	case kMix:
-	case kOn:
 		auto cutoff = filterCutoff * (1.0 + driftValue);
 		cutoff += filterKeyTracking * baseFrequency * pitchBendFactor;
 		cutoff += volEnvCutoff * volEnvValue;
 		cutoff += modEnvCutoff * modEnvValue;
 		cutoff += lfoCutoff * lfoValue;
 		filter.SetCutoff(cutoff);
-		switch (filterMix.GetStatus())
-		{
-		case kMix:
-			out = out * (1.0 - filterMix.GetValue()) + filter.Process(out) * filterMix.GetValue();
-			break;
-		case kOn:
-			out = filter.Process(out);
-			break;
-		}
-		break;
+		out = out * (1.0 - filterMix) + filter.Process(out) * filterMix;
 	}
 
 	return out;
