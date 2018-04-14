@@ -54,6 +54,7 @@
     <ClInclude Include="Voice.h" />
     <ClInclude Include="Parameters.h" />
     <ClInclude Include="Filter.h" />
+    <ClInclude Include="PresetMenu.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\WDL\rtaudiomidi\RtAudio.cpp">
@@ -85,6 +86,7 @@
     <ClCompile Include="Envelope.cpp" />
     <ClCompile Include="Voice.cpp" />
     <ClCompile Include="Filter.cpp" />
+    <ClCompile Include="Presets.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="MikaMicro.rc" />

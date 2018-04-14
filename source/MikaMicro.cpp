@@ -143,7 +143,7 @@ MikaMicro::MikaMicro(IPlugInstanceInfo instanceInfo)
 
 	InitParameters();
 	InitGraphics();
-	MakeDefaultPreset("-", 128);
+	InitPresets();
 }
 
 MikaMicro::~MikaMicro() {}

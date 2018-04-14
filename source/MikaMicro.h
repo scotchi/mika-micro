@@ -7,6 +7,7 @@
 #include "IMidiQueue.h"
 #include "Oscillator.h"
 #include "Parameters.h"
+#include "PresetMenu.h"
 #include "Util.h"
 #include <vector>
 #include "Voice.h"
@@ -29,6 +30,7 @@ public:
 private:
 	void InitParameters();
 	void InitGraphics();
+	void InitPresets();
 	void GrayOutControls();
 
 	double dt = 0.0;
