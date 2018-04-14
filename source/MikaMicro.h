@@ -29,6 +29,7 @@ public:
 private:
 	void InitParameters();
 	void InitGraphics();
+	void GrayOutControls();
 
 	double dt = 0.0;
 	double driftVelocity = 0.0;
