@@ -19,7 +19,6 @@ void Voice::SetParameter(EParameters parameter, double value)
 	case kOsc1Split:
 		osc1SplitFactorA = 1.0 + value;
 		osc1SplitFactorB = 1.0 / osc1SplitFactorA;
-		osc1SplitMix.Switch(value != 0.0);
 		break;
 	case kOsc2Wave:
 		osc2a.SetWaveform((EWaveforms)(int)value);
@@ -36,7 +35,6 @@ void Voice::SetParameter(EParameters parameter, double value)
 	case kOsc2Split:
 		osc2SplitFactorA = 1.0 + value;
 		osc2SplitFactorB = 1.0 / osc2SplitFactorA;
-		osc2SplitMix.Switch(value != 0.0);
 		break;
 	case kOscMix:
 		oscMix = value;
@@ -138,8 +136,8 @@ void Voice::Start()
 		osc2b.Reset();
 		filter.Reset();
 		lfoDelayMultiplier = 0.0;
-		osc1SplitMix.Reset();
-		osc2SplitMix.Reset();
+		osc1SplitMix = osc1SplitFactorA != 1.0 ? 1.0 : 0.0;
+		osc2SplitMix = osc2SplitFactorA != 1.0 ? 1.0 : 0.0;
 		filterMix = filterEnabled ? 1.0 : 0.0;
 	}
 	volEnv.stage = kAttack;
@@ -208,22 +206,11 @@ double Voice::Next(double lfoValue, double driftValue)
 		auto osc1Out = 0.0;
 		osc1a.SetFrequency(osc1Frequency * osc1SplitFactorA);
 		osc1Out += osc1a.Next();
-		osc1SplitMix.Update(dt);
-		switch (osc1SplitMix.GetStatus())
+		osc1SplitMix += ((osc1SplitFactorA != 1.0 ? 1.0 : 0.0) - osc1SplitMix) * 100.0 * dt;
+		if (osc1SplitMix > .01)
 		{
-		case kMix:
-		case kOn:
 			osc1b.SetFrequency(osc1Frequency * osc1SplitFactorB);
-			switch (osc1SplitMix.GetStatus())
-			{
-			case kMix:
-				osc1Out += osc1b.Next() * osc1SplitMix.GetValue();
-				break;
-			case kOn:
-				osc1Out += osc1b.Next();
-				break;
-			}
-			break;
+			osc1Out += osc1b.Next() * osc1SplitMix;
 		}
 		out += osc1Out * sqrt(1.0 - oscMix);
 	}
@@ -234,22 +221,11 @@ double Voice::Next(double lfoValue, double driftValue)
 		auto osc2Out = 0.0;
 		osc2a.SetFrequency(osc2Frequency * osc2SplitFactorA);
 		osc2Out += osc2a.Next();
-		osc2SplitMix.Update(dt);
-		switch (osc2SplitMix.GetStatus())
+		osc2SplitMix += ((osc2SplitFactorA != 1.0 ? 1.0 : 0.0) - osc2SplitMix) * 100.0 * dt;
+		if (osc2SplitMix > .01)
 		{
-		case kMix:
-		case kOn:
 			osc2b.SetFrequency(osc2Frequency * osc2SplitFactorB);
-			switch (osc2SplitMix.GetStatus())
-			{
-			case kMix:
-				osc2Out += osc2b.Next() * osc2SplitMix.GetValue();
-				break;
-			case kOn:
-				osc2Out += osc2b.Next();
-				break;
-			}
-			break;
+			osc2Out += osc2b.Next() * osc2SplitMix;
 		}
 		out += osc2Out * sqrt(oscMix);
 	}
