@@ -281,8 +281,10 @@
     <ClInclude Include="Envelope.h" />
     <ClInclude Include="MikaMicro.h" />
     <ClInclude Include="Oscillator.h" />
+    <ClInclude Include="Parameters.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Util.h" />
+    <ClInclude Include="Voice.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\ASIO_SDK\asio.cpp" />
@@ -296,6 +298,7 @@
     <ClCompile Include="Envelope.cpp" />
     <ClCompile Include="MikaMicro.cpp" />
     <ClCompile Include="Oscillator.cpp" />
+    <ClCompile Include="Voice.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="MikaMicro.rc" />

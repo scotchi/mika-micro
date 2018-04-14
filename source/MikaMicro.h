@@ -4,6 +4,8 @@
 #include "Envelope.h"
 #include "IPlug_include_in_plug_hdr.h"
 #include "Oscillator.h"
+#include "Parameters.h"
+#include "Voice.h"
 
 class MikaMicro : public IPlug
 {
@@ -16,8 +18,9 @@ public:
 	void ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames);
 
 private:
-	Envelope env;
-	Oscillator osc;
+	void InitParameters();
+
+	Voice voice;
 };
 
 #endif
