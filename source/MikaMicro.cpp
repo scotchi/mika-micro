@@ -268,7 +268,8 @@ void MikaMicro::ProcessDoubleReplacing(double** inputs, double** outputs, int nF
 		auto driftValue = GetDriftValue();
 		auto out = 0.0;
 		for (auto &voice : voices) out += voice.Next(lfoValue, driftValue);
-		outputs[0][sample] = outputs[1][sample] = out * .25;
+		out *= GetParam(kMasterVolume)->Value();
+		outputs[0][sample] = outputs[1][sample] = out;
 	}
 }
 
