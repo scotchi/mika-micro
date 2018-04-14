@@ -20,6 +20,9 @@ public:
 private:
 	void InitParameters();
 
+	void InitGraphics();
+
+	IGraphics* pGraphics;
 	Voice voice;
 };
 
