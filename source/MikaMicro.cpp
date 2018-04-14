@@ -242,6 +242,14 @@ void MikaMicro::FlushMidi(int sample)
 	}
 }
 
+void MikaMicro::SmoothOscMix()
+{
+	auto p = GetParam(kOscMix);
+	auto targetOscMix = p->GetMin() + p->GetMax() - p->Value();
+	oscMix += (targetOscMix - oscMix) * 100.0 * dt;
+	for (auto &voice : voices) voice.SetParameter(kOscMix, oscMix);
+}
+
 double MikaMicro::GetDriftValue()
 {
 	driftVelocity += random() * 10000.0 * dt;
@@ -254,6 +262,7 @@ void MikaMicro::ProcessDoubleReplacing(double** inputs, double** outputs, int nF
 {
 	for (int sample = 0; sample < nFrames; sample++)
 	{
+		SmoothOscMix();
 		FlushMidi(sample);
 		auto lfoValue = lfo.Next();
 		auto driftValue = GetDriftValue();
@@ -318,8 +327,10 @@ void MikaMicro::OnParamChange(int paramIdx)
 
 	switch (paramIdx)
 	{
-	// reversed parameters
+	// parameters with special handling
 	case kOscMix:
+		break;
+	// reversed parameters
 	case kVolEnvA:
 	case kVolEnvD:
 	case kVolEnvR:

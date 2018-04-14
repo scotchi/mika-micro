@@ -18,10 +18,6 @@ public:
 	MikaMicro(IPlugInstanceInfo instanceInfo);
 	~MikaMicro();
 
-	void FlushMidi(int sample);
-
-	double GetDriftValue();
-
 	void Reset();
 	void OnParamChange(int paramIdx);
 	void ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames);
@@ -31,9 +27,13 @@ private:
 	void InitParameters();
 	void InitGraphics();
 	void InitPresets();
+	void FlushMidi(int sample);
+	void SmoothOscMix();
+	double GetDriftValue();
 	void GrayOutControls();
 
 	double dt = 0.0;
+	double oscMix = 0.0;
 	double driftVelocity = 0.0;
 	double driftPhase = 0.0;
 	std::vector<int> heldNotes;
