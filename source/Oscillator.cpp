@@ -16,7 +16,7 @@ double Oscillator::Blep(double phase, double phaseIncrement)
 	return 0.0;
 }
 
-double Oscillator::Next(double frequency)
+double Oscillator::Next()
 {
 	auto phaseIncrement = frequency * dt;
 	phase += phaseIncrement;

@@ -19,12 +19,14 @@ class Oscillator
 public:
 	void SetSampleRate(double sr) { dt = 1.0 / sr; }
 	void SetWaveform(EWaveforms w) { waveform = w; }
-	double Next(double frequency);
+	void SetFrequency(double f) { frequency = f; }
+	double Next();
 
 private:
 	double Blep(double phase, double phaseIncrement);
 
 	double dt = 0.0;
+	double frequency = 440.0;
 	double phase = 0.0;
 	EWaveforms waveform = kSine;
 };

@@ -18,6 +18,7 @@ MikaMicro::MikaMicro(IPlugInstanceInfo instanceInfo)
 	MakeDefaultPreset("-", 128);
 
 	osc.SetWaveform(kSaw);
+	osc.SetFrequency(880.0);
 	env.SetAttack(2.0);
 	env.SetDecay(2.0);
 	env.SetSustain(.5);
@@ -32,7 +33,7 @@ void MikaMicro::ProcessDoubleReplacing(double** inputs, double** outputs, int nF
 	for (int s = 0; s < nFrames; s++)
 	{
 		env.Update();
-		auto out = osc.Next(440.0) * env.Get();
+		auto out = osc.Next() * env.Get();
 		outputs[0][s] = outputs[1][s] = out * .25;
 	}
 }
