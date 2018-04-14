@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cmath>
-#include "SmoothSwitch.h"
 #include "Util.h"
 
 enum EWaveforms
@@ -19,19 +18,21 @@ enum EWaveforms
 class Oscillator
 {
 public:
-	Oscillator()
-	{
-		waveformMix.Switch(true);
-		waveformMix.Reset();
-	}
 	void SetSampleRate(double sr) { dt = 1.0 / sr; }
-	void SetWaveform(EWaveforms w);
+	void SetWaveform(EWaveforms w)
+	{
+		previousWaveform = waveform;
+		waveform = w;
+		crossfading = true;
+		waveformMix = 0.0;
+	}
 	void SetFrequency(double f) { frequency = f; }
 	double Next();
 	void Reset(double p = 0.0)
 	{
 		phase = p;
-		waveformMix.Reset();
+		crossfading = false;
+		waveformMix = 1.0;
 	}
 
 private:
@@ -43,7 +44,8 @@ private:
 	double frequency = 440.0;
 	EWaveforms previousWaveform = kNone;
 	EWaveforms waveform = kSine;
-	SmoothSwitch waveformMix;
+	double waveformMix = 1.0;
+	bool crossfading = false;
 	double phase = 0.0;
 	double phaseIncrement = 0.0;
 	double triCurrent = 0.0;

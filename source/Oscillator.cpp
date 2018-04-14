@@ -50,32 +50,23 @@ double Oscillator::Get(EWaveforms waveform)
 	}
 }
 
-void Oscillator::SetWaveform(EWaveforms w)
-{
-	previousWaveform = waveform;
-	waveform = w;
-	waveformMix.Switch(false);
-	waveformMix.Reset();
-	waveformMix.Switch(true);
-}
-
 double Oscillator::Next()
 {
 	phaseIncrement = frequency * dt;
 	phase += phaseIncrement;
 	while (phase > 1.0) phase -= 1.0;
 
-	waveformMix.Update(dt);
-	switch (waveformMix.GetStatus())
+	switch (crossfading)
 	{
-	case kOff:
-		return Get(previousWaveform);
-		break;
-	case kMix:
-		return Get(previousWaveform) * (1.0 - waveformMix.GetValue()) + Get(waveform) * waveformMix.GetValue();
-		break;
-	case kOn:
+	case true:
+		waveformMix += 100.0 * dt;
+		if (waveformMix >= 1.0)
+		{
+			waveformMix = 1.0;
+			crossfading = false;
+		}
+		return Get(previousWaveform) * (1.0 - waveformMix) + Get(waveform) * waveformMix;
+	case false:
 		return Get(waveform);
-		break;
 	}
 }
