@@ -203,7 +203,7 @@ double Voice::Next(double lfoValue, double driftValue)
 	auto out = 0.0;
 
 	// oscillator 1
-	if (oscMix < 1.0)
+	if (oscMix < .99)
 	{
 		auto osc1Out = 0.0;
 		osc1a.SetFrequency(osc1Frequency * osc1SplitFactorA);
@@ -229,7 +229,7 @@ double Voice::Next(double lfoValue, double driftValue)
 	}
 
 	// oscillator 2
-	if (oscMix > 0.0)
+	if (oscMix > .01)
 	{
 		auto osc2Out = 0.0;
 		osc2a.SetFrequency(osc2Frequency * osc2SplitFactorA);
