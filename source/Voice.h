@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Envelope.h"
+#include "Filter.h"
 #include "Oscillator.h"
 #include "Parameters.h"
 #include "Util.h"
@@ -17,6 +18,7 @@ public:
 		osc1b.SetSampleRate(sr);
 		osc2a.SetSampleRate(sr);
 		osc2b.SetSampleRate(sr);
+		filter.SetSampleRate(sr);
 	}
 	void SetParameter(EParameters parameter, double value);
 	void SetNote(int n)
@@ -38,10 +40,12 @@ private:
 	Oscillator osc1b;
 	Oscillator osc2a;
 	Oscillator osc2b;
+	Filter filter;
 
 	double dt = 0.0;
 	int note = 69;
 	double baseFrequency = 440.0;
+	double pitchBendFactor = 1.0;
 
 	int osc1Coarse = 0;
 	double osc1Fine = 0.0;
@@ -57,5 +61,8 @@ private:
 	int fmMode = 0;
 	double fmCoarse = 0.0;
 	double fmFine = 0.0;
+	bool filterEnabled = false;
+	double filterCutoff = 8000.0;
+	double filterKeyTracking = 0.0;
 };
 

@@ -49,12 +49,16 @@ void Voice::SetParameter(EParameters parameter, double value)
 		fmFine = value;
 		break;
 	case kFilterEnabled:
+		filterEnabled = (bool)value;
 		break;
 	case kFilterCutoff:
+		filterCutoff = value;
 		break;
 	case kFilterResonance:
+		filter.SetResonance(value);
 		break;
 	case kFilterKeyTrack:
+		filterKeyTracking = value;
 		break;
 	case kVolEnvA:
 		volEnv.SetAttack(value);
@@ -112,21 +116,23 @@ void Voice::Start()
 		osc1b.Reset();
 		osc2a.Reset();
 		osc2b.Reset();
+		filter.Reset();
 	}
 	volEnv.stage = kAttack;
 }
 
 double Voice::Next()
 {
+	// skip processing if voice is silent
 	volEnv.Update();
 	auto volEnvValue = volEnv.Get();
-	if (volEnvValue == 0.0) return 0.0;
+	if (volEnvValue == 0.0 && filter.IsSilent()) return 0.0;
 
+	// oscillator base frequencies
 	auto osc1Frequency = baseFrequency * osc1PitchFactor;
 	auto osc2Frequency = baseFrequency * osc2PitchFactor;
 
-	auto out = 0.0;
-
+	// fm
 	switch (fmMode)
 	{
 	case 1:
@@ -147,6 +153,9 @@ double Voice::Next()
 	}
 	}
 
+	auto out = 0.0;
+
+	// oscillator 1
 	if (oscMix < 1.0)
 	{
 		auto osc1Out = 0.0;
@@ -160,6 +169,7 @@ double Voice::Next()
 		out += osc1Out * sqrt(1.0 - oscMix);
 	}
 
+	// oscillator 2
 	if (oscMix > 0.0)
 	{
 		auto osc2Out = 0.0;
@@ -174,6 +184,16 @@ double Voice::Next()
 	}
 
 	out *= volEnv.Get();
+
+	switch (filterEnabled)
+	{
+	case true:
+		auto cutoff = filterCutoff;
+		cutoff += filterKeyTracking * baseFrequency * pitchBendFactor;
+		filter.SetCutoff(cutoff);
+		out = filter.Process(out);
+		break;
+	}
 
 	return out;
 }
