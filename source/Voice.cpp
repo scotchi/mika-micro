@@ -118,6 +118,7 @@ void Voice::SetParameter(EParameters parameter, double value)
 		lfoCutoff = copysign((value * .000125) * (value * .000125) * 8000.0, value);
 		break;
 	case kVoiceMode:
+		voiceMode = (EVoiceModes)(int)value;
 		break;
 	case kGlideSpeed:
 		glideSpeed = value;
@@ -161,7 +162,13 @@ double Voice::Next(double lfoValue, double driftValue)
 	lfoValue *= lfoDelayMultiplier;
 
 	// mono glide
-	baseFrequency += (targetFrequency - baseFrequency) * glideSpeed * dt;
+	switch (voiceMode)
+	{
+	case kMono:
+	case kLegato:
+		baseFrequency += (targetFrequency - baseFrequency) * glideSpeed * dt;
+		break;
+	}
 
 	// oscillator base frequencies
 	auto osc1Frequency = baseFrequency * osc1PitchFactor * pitchBendFactor * (1.0 + driftValue);

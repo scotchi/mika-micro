@@ -98,6 +98,7 @@ private:
 	double lfoOsc2 = 0.0;
 	double lfoFm = 0.0;
 	double lfoCutoff = 0.0;
+	EVoiceModes voiceMode = kLegato;
 	double glideSpeed = 0.0;
 };
 
