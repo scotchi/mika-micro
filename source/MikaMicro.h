@@ -1,6 +1,7 @@
 #ifndef __MIKAMICRO__
 #define __MIKAMICRO__
 
+#include "Envelope.h"
 #include "IPlug_include_in_plug_hdr.h"
 #include "Oscillator.h"
 
@@ -15,6 +16,7 @@ public:
 	void ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames);
 
 private:
+	Envelope env;
 	Oscillator osc;
 };
 
