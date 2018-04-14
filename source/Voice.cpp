@@ -94,6 +94,7 @@ void Voice::SetParameter(EParameters parameter, double value)
 double Voice::Next()
 {
 	auto out = 0.0;
+	osc1a.SetFrequency(baseFrequency);
 	out += osc1a.Next();
 	volEnv.Update();
 	out *= volEnv.Get();

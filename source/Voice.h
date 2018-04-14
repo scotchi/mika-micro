@@ -24,9 +24,12 @@ public:
 		note = n;
 		baseFrequency = pitchToFrequency(note);
 	}
+	int GetNote() { return note; }
 	void Start() { volEnv.stage = kAttack; }
 	void Release() { volEnv.stage = kRelease; }
 	double Next();
+	double GetVolume() { return volEnv.Get(); }
+	bool IsReleased() { return volEnv.stage == kRelease; }
 
 private:
 	Envelope volEnv;

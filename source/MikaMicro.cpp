@@ -144,19 +144,57 @@ MikaMicro::MikaMicro(IPlugInstanceInfo instanceInfo)
 	InitParameters();
 	InitGraphics();
 	MakeDefaultPreset("-", 128);
-
-	voice.SetNote(48);
-	voice.Start();
 }
 
 MikaMicro::~MikaMicro() {}
 
+void MikaMicro::FlushMidi(int sample)
+{
+	while (!midiQueue.Empty())
+	{
+		auto message = midiQueue.Peek();
+		if (message->mOffset > sample) break;
+
+		auto status = message->StatusMsg();
+		auto note = message->NoteNumber();
+		auto velocity = message->Velocity();
+		if (status == IMidiMsg::kNoteOn && velocity == 0) status = IMidiMsg::kNoteOff;
+
+		switch (status)
+		{
+		case IMidiMsg::kNoteOff:
+			for (auto &voice : voices)
+				if (voice.GetNote() == note) voice.Release();
+			break;
+		case IMidiMsg::kNoteOn:
+		{
+			// get the quietest voice, prioritizing voices that are released
+			auto voice = std::min_element(
+				std::begin(voices),
+				std::end(voices),
+				[](Voice a, Voice b)
+			{
+				return a.IsReleased() == b.IsReleased() ? a.GetVolume() < b.GetVolume() : a.IsReleased();
+			}
+			);
+			voice->SetNote(note);
+			voice->Start();
+			break;
+		}
+		}
+
+		midiQueue.Remove();
+	}
+}
+
 void MikaMicro::ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames)
 {
-	for (int s = 0; s < nFrames; s++)
+	for (int sample = 0; sample < nFrames; sample++)
 	{
-		auto out = voice.Next();
-		outputs[0][s] = outputs[1][s] = out * .25;
+		FlushMidi(sample);
+		auto out = 0.0;
+		for (auto &voice : voices) out += voice.Next();
+		outputs[0][sample] = outputs[1][sample] = out * .25;
 	}
 }
 
@@ -164,7 +202,7 @@ void MikaMicro::Reset()
 {
 	TRACE;
 	IMutexLock lock(this);
-	voice.SetSampleRate(GetSampleRate());
+	for (auto &voice : voices) voice.SetSampleRate(GetSampleRate());
 }
 
 void MikaMicro::OnParamChange(int paramIdx)
@@ -180,11 +218,13 @@ void MikaMicro::OnParamChange(int paramIdx)
 	case kModEnvA:
 	case kModEnvD:
 	case kModEnvR:
-		voice.SetParameter((EParameters)paramIdx, GetParam(paramIdx)->GetMin() + GetParam(paramIdx)->GetMax() - GetParam(paramIdx)->Value());
+		for (auto &voice : voices)
+			voice.SetParameter((EParameters)paramIdx, GetParam(paramIdx)->GetMin() + GetParam(paramIdx)->GetMax() - GetParam(paramIdx)->Value());
 		break;
 	// normal parameters
 	default:
-		voice.SetParameter((EParameters)paramIdx, GetParam(paramIdx)->Value());
+		for (auto &voice : voices)
+			voice.SetParameter((EParameters)paramIdx, GetParam(paramIdx)->Value());
 		break;
 	}
 	
