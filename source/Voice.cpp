@@ -9,8 +9,12 @@ void Voice::SetParameter(EParameters parameter, double value)
 		osc1b.SetWaveform((EWaveforms)(int)value);
 		break;
 	case kOsc1Coarse:
+		osc1Coarse = value;
+		osc1PitchFactor = pitchFactor(osc1Coarse + osc1Fine);
 		break;
 	case kOsc1Fine:
+		osc1Fine = value;
+		osc1PitchFactor = pitchFactor(osc1Coarse + osc1Fine);
 		break;
 	case kOsc1Split:
 		break;
@@ -94,7 +98,7 @@ void Voice::SetParameter(EParameters parameter, double value)
 double Voice::Next()
 {
 	auto out = 0.0;
-	osc1a.SetFrequency(baseFrequency);
+	osc1a.SetFrequency(baseFrequency * osc1PitchFactor);
 	out += osc1a.Next();
 	volEnv.Update();
 	out *= volEnv.Get();

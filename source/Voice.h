@@ -42,5 +42,9 @@ private:
 	double dt = 0.0;
 	int note = 69;
 	double baseFrequency = 440.0;
+
+	int osc1Coarse = 0;
+	double osc1Fine = 0.0;
+	double osc1PitchFactor = 1.0;
 };
 
