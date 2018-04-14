@@ -1,7 +1,7 @@
 #include "Oscillator.h"
 
 // http://www.kvraudio.com/forum/viewtopic.php?t=375517
-double Oscillator::Blep(double phase, double phaseIncrement)
+double Oscillator::Blep(double phase)
 {
 	if (phase < phaseIncrement)
 	{
@@ -16,39 +16,66 @@ double Oscillator::Blep(double phase, double phaseIncrement)
 	return 0.0;
 }
 
-
-double Oscillator::GeneratePulse(double width, double phaseIncrement)
+double Oscillator::GeneratePulse(double width)
 {
 	double v = phase < width ? 1.0 : -1.0;
-	v += Blep(phase, phaseIncrement);
-	v -= Blep(fmod(phase + (1.0 - width), 1.0), phaseIncrement);
+	v += Blep(phase);
+	v -= Blep(fmod(phase + (1.0 - width), 1.0));
 	return v;
 }
 
-double Oscillator::Next()
+double Oscillator::Get(EWaveforms waveform)
 {
-	auto phaseIncrement = frequency * dt;
-	phase += phaseIncrement;
-	while (phase > 1.0) phase -= 1.0;
-
 	switch (waveform)
 	{
 	case kSine:
 		return sin(phase * twoPi);
 	case kTriangle:
 		triLast = triCurrent;
-		triCurrent = phaseIncrement * GeneratePulse(.5, phaseIncrement) + (1.0 - phaseIncrement) * triLast;
+		triCurrent = phaseIncrement * GeneratePulse(.5) + (1.0 - phaseIncrement) * triLast;
 		return triCurrent * 5.0;
 	case kSaw:
-		return 1.0 - 2.0 * phase + Blep(phase, phaseIncrement);
+		return 1.0 - 2.0 * phase + Blep(phase);
 	case kSquare:
-		return GeneratePulse(.5, phaseIncrement);
+		return GeneratePulse(.5);
 	case kPulse:
-		return GeneratePulse(.75, phaseIncrement);
+		return GeneratePulse(.75);
 	case kNoise:
 		noiseValue += 19.0;
 		noiseValue *= noiseValue;
 		noiseValue -= (int)noiseValue;
 		return noiseValue - .5;
+	case kNone:
+		return 0.0;
+	}
+}
+
+void Oscillator::SetWaveform(EWaveforms w)
+{
+	previousWaveform = waveform;
+	waveform = w;
+	waveformMix.Switch(false);
+	waveformMix.Reset();
+	waveformMix.Switch(true);
+}
+
+double Oscillator::Next()
+{
+	phaseIncrement = frequency * dt;
+	phase += phaseIncrement;
+	while (phase > 1.0) phase -= 1.0;
+
+	waveformMix.Update(dt);
+	switch (waveformMix.GetStatus())
+	{
+	case kOff:
+		return Get(previousWaveform);
+		break;
+	case kMix:
+		return Get(previousWaveform) * (1.0 - waveformMix.GetValue()) + Get(waveform) * waveformMix.GetValue();
+		break;
+	case kOn:
+		return Get(waveform);
+		break;
 	}
 }
