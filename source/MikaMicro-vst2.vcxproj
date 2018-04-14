@@ -244,6 +244,7 @@
     <ClInclude Include="Parameters.h" />
     <ClInclude Include="PresetMenu.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="SmoothSwitch.h" />
     <ClInclude Include="Util.h" />
     <ClInclude Include="Voice.h" />
   </ItemGroup>
@@ -254,6 +255,7 @@
     <ClCompile Include="MikaMicro.cpp" />
     <ClCompile Include="Oscillator.cpp" />
     <ClCompile Include="Presets.cpp" />
+    <ClCompile Include="SmoothSwitch.cpp" />
     <ClCompile Include="Voice.cpp" />
   </ItemGroup>
   <ItemGroup>
