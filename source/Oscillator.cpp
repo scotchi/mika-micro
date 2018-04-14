@@ -16,6 +16,15 @@ double Oscillator::Blep(double phase, double phaseIncrement)
 	return 0.0;
 }
 
+
+double Oscillator::GeneratePulse(double width, double phaseIncrement)
+{
+	double v = phase < width ? 1.0 : -1.0;
+	v += Blep(phase, phaseIncrement);
+	v -= Blep(fmod(phase + (1.0 - width), 1.0), phaseIncrement);
+	return v;
+}
+
 double Oscillator::Next()
 {
 	auto phaseIncrement = frequency * dt;
@@ -27,18 +36,19 @@ double Oscillator::Next()
 	case kSine:
 		return sin(phase * twoPi);
 	case kTriangle:
-		break;
+		triLast = triCurrent;
+		triCurrent = phaseIncrement * GeneratePulse(.5, phaseIncrement) + (1.0 - phaseIncrement) * triLast;
+		return triCurrent * 5.0;
 	case kSaw:
 		return 1.0 - 2.0 * phase + Blep(phase, phaseIncrement);
 	case kSquare:
-		break;
+		return GeneratePulse(.5, phaseIncrement);
 	case kPulse:
-		break;
+		return GeneratePulse(.75, phaseIncrement);
 	case kNoise:
-		break;
-	case kNumWaveforms:
-		break;
-	default:
-		break;
+		noiseValue += 19.0;
+		noiseValue *= noiseValue;
+		noiseValue -= (int)noiseValue;
+		return noiseValue - .5;
 	}
 }
