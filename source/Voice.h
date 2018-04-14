@@ -6,6 +6,14 @@
 #include "Parameters.h"
 #include "Util.h"
 
+enum EVoiceModes
+{
+	kPoly,
+	kMono,
+	kLegato,
+	kNumVoiceModes
+};
+
 class Voice
 {
 public:
@@ -25,9 +33,12 @@ public:
 	void SetNote(int n)
 	{
 		note = n;
-		baseFrequency = pitchToFrequency(note);
+		targetFrequency = pitchToFrequency(note);
 	}
 	int GetNote() { return note; }
+	void SetVelocity(double v) { velocity = v; }
+	void SetPitchBendFactor(double f) { pitchBendFactor = f; }
+	void ResetPitch() { baseFrequency = targetFrequency; }
 	void Start();
 	void Release()
 	{
@@ -50,6 +61,8 @@ private:
 
 	double dt = 0.0;
 	int note = 69;
+	double velocity = 0.0;
+	double targetFrequency = 440.0;
 	double baseFrequency = 440.0;
 	double pitchBendFactor = 1.0;
 
@@ -70,6 +83,8 @@ private:
 	bool filterEnabled = false;
 	double filterCutoff = 8000.0;
 	double filterKeyTracking = 0.0;
+	double volEnvVelocitySensitivity = 0.0;
+	double modEnvVelocitySensitivity = 0.0;
 	double lfoDelay = 0.0;
 	double lfoDelayMultiplier = 1.0;
 	double volEnvFm = 0.0;
@@ -80,5 +95,6 @@ private:
 	double lfoOsc2 = 0.0;
 	double lfoFm = 0.0;
 	double lfoCutoff = 0.0;
+	double glideSpeed = 0.0;
 };
 

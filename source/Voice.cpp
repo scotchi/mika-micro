@@ -73,6 +73,7 @@ void Voice::SetParameter(EParameters parameter, double value)
 		volEnv.SetRelease(value);
 		break;
 	case kVolEnvV:
+		volEnvVelocitySensitivity = value;
 		break;
 	case kModEnvA:
 		modEnv.SetAttack(value);
@@ -87,6 +88,7 @@ void Voice::SetParameter(EParameters parameter, double value)
 		modEnv.SetRelease(value);
 		break;
 	case kModEnvV:
+		modEnvVelocitySensitivity = value;
 		break;
 	case kLfoAmount:
 		if (value < 0.0)
@@ -121,6 +123,7 @@ void Voice::SetParameter(EParameters parameter, double value)
 	case kVoiceMode:
 		break;
 	case kGlideSpeed:
+		glideSpeed = value;
 		break;
 	}
 }
@@ -146,16 +149,19 @@ double Voice::Next(double lfoValue, double driftValue)
 {
 	// skip processing if voice is silent
 	volEnv.Update();
-	auto volEnvValue = volEnv.Get();
+	auto volEnvValue = volEnv.Get() * (1.0 + (velocity - 1.0) * volEnvVelocitySensitivity);
 	if (volEnvValue == 0.0 && filter.IsSilent()) return 0.0;
 
 	// mod envelope
 	modEnv.Update();
-	auto modEnvValue = modEnv.Get();
+	auto modEnvValue = modEnv.Get() * (1.0 + (velocity - 1.0) * modEnvVelocitySensitivity);
 
 	// lfo
 	lfoDelayMultiplier += (1.0 - lfoDelayMultiplier) * lfoDelay * dt;
 	lfoValue *= lfoDelayMultiplier;
+
+	// mono glide
+	baseFrequency += (targetFrequency - baseFrequency) * glideSpeed * dt;
 
 	// oscillator base frequencies
 	auto osc1Frequency = baseFrequency * osc1PitchFactor * pitchBendFactor * (1.0 + driftValue);
@@ -218,7 +224,7 @@ double Voice::Next(double lfoValue, double driftValue)
 	}
 
 	// apply volume envelope
-	out *= volEnv.Get();
+	out *= volEnvValue;
 
 	// filter
 	switch (filterEnabled)

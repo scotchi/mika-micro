@@ -8,6 +8,7 @@
 #include "Oscillator.h"
 #include "Parameters.h"
 #include "Util.h"
+#include <vector>
 #include "Voice.h"
 
 class MikaMicro : public IPlug
@@ -32,6 +33,7 @@ private:
 	double dt = 0.0;
 	double driftVelocity = 0.0;
 	double driftPhase = 0.0;
+	std::vector<int> heldNotes;
 
 	IGraphics* pGraphics;
 	IMidiQueue midiQueue;

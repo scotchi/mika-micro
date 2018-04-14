@@ -51,7 +51,7 @@ void MikaMicro::InitParameters()
 	GetParam(kLfoCutoff)->InitDouble("Vibrato to filter cutoff", 0.0, -8000.0, 8000.0, .01);
 
 	// master
-	//GetParam(kVoiceMode)->InitEnum("Voice mode", kLegato, kNumVoiceModes);
+	GetParam(kVoiceMode)->InitEnum("Voice mode", kLegato, kNumVoiceModes);
 	GetParam(kGlideSpeed)->InitDouble("Glide speed", 1.0, 1.0, 1000.0, .01, "", "", .1);
 	GetParam(kMasterVolume)->InitDouble("Master volume", 0.25, 0.0, 0.5, .01);
 }
@@ -155,32 +155,87 @@ void MikaMicro::FlushMidi(int sample)
 		auto message = midiQueue.Peek();
 		if (message->mOffset > sample) break;
 
+		auto voiceMode = (EVoiceModes)(int)GetParam(kVoiceMode)->Value();
 		auto status = message->StatusMsg();
 		auto note = message->NoteNumber();
-		auto velocity = message->Velocity();
-		if (status == IMidiMsg::kNoteOn && velocity == 0) status = IMidiMsg::kNoteOff;
+		auto velocity = pow(message->Velocity() * .0078125, 1.25);
+
+		if (status == IMidiMsg::kNoteOn && velocity == 0.0) status = IMidiMsg::kNoteOff;
 
 		switch (status)
 		{
 		case IMidiMsg::kNoteOff:
-			for (auto &voice : voices)
-				if (voice.GetNote() == note) voice.Release();
+			heldNotes.erase(
+				std::remove(
+					std::begin(heldNotes),
+					std::end(heldNotes),
+					note
+				),
+				std::end(heldNotes)
+			);
+
+			switch (voiceMode)
+			{
+			case kPoly:
+				for (auto &voice : voices)
+					if (voice.GetNote() == note) voice.Release();
+				break;
+			case kMono:
+			case kLegato:
+				if (heldNotes.empty())
+					voices[0].Release();
+				else
+					voices[0].SetNote(heldNotes.back());
+				break;
+			}
 			break;
 		case IMidiMsg::kNoteOn:
-		{
-			// get the quietest voice, prioritizing voices that are released
-			auto voice = std::min_element(
-				std::begin(voices),
-				std::end(voices),
-				[](Voice a, Voice b)
+			switch (voiceMode)
 			{
-				return a.IsReleased() == b.IsReleased() ? a.GetVolume() < b.GetVolume() : a.IsReleased();
+			case kPoly:
+			{
+				// get the quietest voice, prioritizing voices that are released
+				auto voice = std::min_element(
+					std::begin(voices),
+					std::end(voices),
+					[](Voice a, Voice b)
+				{
+					return a.IsReleased() == b.IsReleased() ? a.GetVolume() < b.GetVolume() : a.IsReleased();
+				}
+				);
+				voice->SetNote(note);
+				voice->SetVelocity(velocity);
+				voice->ResetPitch();
+				voice->Start();
+				break;
 			}
-			);
-			voice->SetNote(note);
-			voice->Start();
+			case kMono:
+				voices[0].SetNote(note);
+				voices[0].SetVelocity(velocity);
+				voices[0].Start();
+				break;
+			case kLegato:
+				voices[0].SetNote(note);
+				if (heldNotes.empty())
+				{
+					voices[0].SetVelocity(velocity);
+					voices[0].ResetPitch();
+					voices[0].Start();
+				}
+				break;
+			}
+
+			heldNotes.push_back(note);
+			break;
+		case IMidiMsg::kPitchWheel:
+		{
+			auto pitchBendFactor = pitchFactor(message->PitchWheel() * 2.0);
+			for (auto &voice : voices) voice.SetPitchBendFactor(pitchBendFactor);
 			break;
 		}
+		case IMidiMsg::kAllNotesOff:
+			for (auto &voice : voices) voice.Release();
+			break;
 		}
 
 		midiQueue.Remove();
@@ -233,6 +288,7 @@ void MikaMicro::OnParamChange(int paramIdx)
 	case kModEnvD:
 	case kModEnvR:
 	case kLfoDelay:
+	case kGlideSpeed:
 		for (auto &voice : voices)
 			voice.SetParameter((EParameters)paramIdx, GetParam(paramIdx)->GetMin() + GetParam(paramIdx)->GetMax() - GetParam(paramIdx)->Value());
 		break;
