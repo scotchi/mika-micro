@@ -628,7 +628,7 @@
 					</object>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier" id="782276403">
 						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">../../WDL/swell/swellappmain.h</string>
+						<string key="minorKey">../../wdl-ol/WDL/swell/swellappmain.h</string>
 					</object>
 				</object>
 				<object class="IBPartialClassDescription">

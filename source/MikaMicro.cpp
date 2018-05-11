@@ -247,7 +247,7 @@ void MikaMicro::FlushMidi(int sample)
 
 double MikaMicro::GetDriftValue()
 {
-	driftVelocity += random() * 10000.0 * dt;
+	driftVelocity += fastRandom() * 10000.0 * dt;
 	driftVelocity -= driftVelocity * 2.0 * dt;
 	driftPhase += driftVelocity * dt;
 	return .001 * sin(driftPhase);

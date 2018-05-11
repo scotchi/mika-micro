@@ -1,4 +1,4 @@
-#include "../../common.xcconfig"
+#include "../../wdl-ol/common.xcconfig"
 
 //------------------------------
 // Global settings

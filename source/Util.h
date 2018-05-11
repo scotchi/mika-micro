@@ -3,8 +3,8 @@
 #include <cmath>
 
 // math constants //
-const double pi = 2.0 * acos(0.0);
-const double twoPi = 2.0 * pi;
+extern const double pi;
+extern const double twoPi;
 
 // pitch calculation //
 inline double pitchFactor(double p) { return pow(1.0595, p); }
@@ -16,22 +16,25 @@ inline double fastAtan(double x) { return x / (1.0 + .28 * (x * x)); }
 // random numbers //
 
 // https://stackoverflow.com/questions/1640258/need-a-fast-random-generator-for-c
-static unsigned long x = 123456789, y = 362436069, z = 521288629;
+
+extern unsigned long xorshiftX, xorshiftY, xorshiftZ;
+
 inline unsigned long xorshift(void)
 {
 	unsigned long t;
-	x ^= x << 16;
-	x ^= x >> 5;
-	x ^= x << 1;
-	t = x;
-	x = y;
-	y = z;
-	z = t ^ x ^ y;
-	return z;
+	xorshiftX ^= xorshiftX << 16;
+	xorshiftX ^= xorshiftX >> 5;
+	xorshiftX ^= xorshiftX << 1;
+	t = xorshiftX;
+	xorshiftX = xorshiftY;
+	xorshiftY = xorshiftZ;
+	xorshiftZ = t ^ xorshiftX ^ xorshiftY;
+	return xorshiftZ;
 }
 
-const double xorshiftMultiplier = 2.0 / ULONG_MAX;
-inline double random()
+extern const double xorshiftMultiplier;
+
+inline double fastRandom()
 {
 	return -1.0 + xorshift() * xorshiftMultiplier;
 }
